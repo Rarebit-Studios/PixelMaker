@@ -207,13 +207,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize the first palette
     updateColorSwatches();
 
-    // Handle palette changes
+    // Update the palette selector event handler
     paletteSelector.addEventListener('change', (e) => {
-        currentPalette = palettes[e.target.value];
+        // Store the new palette
+        const newPaletteName = e.target.value;
+        const newPalette = palettes[newPaletteName];
+        
+        // Push current state to undo stack before changing
+        pushState();
+        
+        // Update current palette
+        currentPalette = newPalette;
+        
+        // Recolor all pixels to closest colors in new palette
+        const pixels = document.querySelectorAll('.pixel');
+        pixels.forEach(pixel => {
+            const currentColor = pixel.style.backgroundColor;
+            if (currentColor && currentColor !== 'transparent') {
+                // Convert RGB to hex if needed
+                const hexColor = currentColor.startsWith('rgb') ? rgbToHex(currentColor) : currentColor;
+                const rgb = hexToRgb(hexColor);
+                if (rgb) {
+                    // Find closest color in new palette
+                    const closestColor = findClosestColor(rgb.r, rgb.g, rgb.b);
+                    pixel.style.backgroundColor = closestColor;
+                }
+            }
+        });
+        
+        // Update color swatches
         updateColorSwatches();
         
+        // Update preview
+        updateMiniPreview();
+        
         // Show/hide MakeCode export button based on palette selection
-        exportMakeCodeBtn.style.display = e.target.value === 'makecode' ? 'inline-block' : 'none';
+        exportMakeCodeBtn.style.display = newPaletteName === 'makecode' ? 'inline-block' : 'none';
+        
+        // Save the changes
+        saveToLocalStorage();
+        
+        // Show notification
+        showNotification(`Palette changed to ${newPaletteName}`);
     });
 
     // Make sure the button visibility is set correctly on initial load
