@@ -1,0 +1,644 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #111111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-image: url('bg1.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.container {
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 98vh;
+    box-sizing: border-box;
+}
+
+.editor-container {
+    background-color: rgba(19, 18, 26, 0.4);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    margin: 0 auto;
+
+    box-sizing: border-box;
+}
+
+.editor-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: fit-content;
+    align-items: center;
+
+}
+
+.main-editor {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+    width: fit-content;
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+.color-palette {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 3px;
+    padding: 4px;
+    height: min(70vh, 70vw);
+}
+
+.color-swatch {
+    width: 80%;
+    aspect-ratio: 1;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid rgb(58, 58, 58);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(214, 214, 214, 0.1);
+    position: relative;
+  
+}
+
+/* Rule for transparent swatches */
+.color-swatch[style*="rgba(0, 0, 0, 0)"],
+.color-swatch[style*="transparent"] {
+    background-image: url('transback.png');
+    background-repeat: repeat;
+    background-size: 16px 16px;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.color-swatch.selected {
+    border-color: #333c57;
+    transform: scale(1.1);
+    box-shadow: 0 0 0 2px white, 0 0 0 4px #333c57;
+    z-index: 2;
+}
+
+/* Make all elements in tools the same height */
+.tools > * {
+    height: 60px;
+    min-height: 60px;
+    min-width: 60px;
+    box-sizing: border-box;
+}
+
+.tools {
+    display: flex;
+    gap: 8.8px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+.tools-top-left {
+    display: flex;
+    gap: 7.5px;
+    align-items: center;
+    height: 56px;
+    min-height: 56px;
+    min-width: 100px;
+    
+}
+
+.tools-top-middle {
+    display: flex;
+    gap: 7.5px;
+    align-items: center;
+    height: 56px;
+    min-height: 56px;
+   
+}
+
+.tools-top-right {
+    display: flex;
+    gap: 7.5px;
+    align-items: center;
+    height: 56px;
+    min-height: 56px;
+    min-width: 100px;
+}
+
+.tools-bottom {
+    display: flex;
+    gap: 8.8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+/* Make all elements in tools the same height */
+.tools-bottom > * {
+    height: 48px;
+    min-height: 48px;
+    min-width: 48px;
+    box-sizing: border-box;
+}
+
+.tools-bottom-left {
+    display: flex;
+    gap: 7.5px;
+    align-items: center;
+    height: 56px;
+    min-height: 56px;
+    min-width: 100px;
+    
+}
+
+.tools-bottom-middle {
+    display: flex;
+    gap: 7.5px;
+    align-items: center;
+    height: 56px;
+    min-height: 56px;
+    justify-content: center;
+}
+
+.tools-bottom-right {
+    display: flex;
+    gap: 7.5px;
+    align-items: center;
+    height: 56px;
+    min-height: 56px;
+    min-width: 100px;
+}
+
+button, .tool-button {
+    padding: 4px;
+    border: none;
+    border-radius: 2px;
+    background-color: #18b2e0;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 40px;
+    height: 40px;
+}
+
+#colorPicker {
+    width: 86.4px !important;
+    height: 86.4px !important;
+    padding: 0;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.tool-icon {
+    width: 43.2px;
+    height: 43.2px;
+    object-fit: contain;
+    padding: 4px;
+}
+
+button:hover {
+    background-color: #3e8fdb;
+}
+
+#pixelGrid {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    background-color: rgb(196, 196, 196);
+    background-image: url('transback.png');
+    background-repeat: repeat;
+    background-size: 16px 16px;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    width: min(70vh, 70vw);
+    height: min(70vh, 70vw);
+    border: 1px solid #333c57;
+    aspect-ratio: 1;
+}
+
+.pixel {
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    border: 1px solid #4d50589c;
+    position: relative;
+}
+
+.pixel:hover {
+    background-color: var(--hover-color, currentColor) !important;
+}
+
+.mini-preview {
+    width: 86.4px !important;
+    height: 86.4px !important;
+    border: 2px solid #333c57;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 0;
+    background-color: transparent;
+    position: relative;
+}
+
+.mini-preview::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+
+    z-index: -1;
+}
+
+.mini-preview-pixel {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+}
+
+/* Landscape Mode */
+@media (orientation: landscape) {
+    .container {
+        max-width: 95vw;
+    }
+
+    .editor-container {
+        padding: 15px;
+    }
+
+    .main-editor {
+        flex-direction: row;
+        justify-content: center;
+        gap: 30px;
+    }
+
+    .color-palette {
+        grid-template-columns: 1fr;
+        width: min(8vh, 8vw);
+        height: min(70vh, 70vw);
+    }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 400px) {
+    .container {
+        padding: 5px;
+    }
+    
+    .editor-container {
+        padding: 8px;
+    }
+    
+    .editor-content {
+        gap: 5px;
+    }
+    
+    .tools {
+        gap: 3px;
+    }
+    
+    .tools > * {
+        height: 40px; /* Slightly smaller on mobile */
+        min-height: 40px;
+    }
+    
+    button, .tool-button {
+        padding: 0 24px;
+        height: 40px;
+    }
+    
+    h1 {
+        margin-bottom: 10px;
+    }
+
+    .color-palette {
+        gap: 3px;
+        padding: 3px;
+    }
+
+    .main-editor {
+        gap: 5px;
+        padding: 3px 0;
+    }
+
+    .mini-preview {
+        width: 40px;
+        height: 40px;
+    }
+
+    .logo {
+        width: 86.4px !important;
+        height: 86.4px !important;
+        padding: 0;
+        border: none;
+        border-radius: 2px;
+        cursor: pointer;
+        background-color: #18b2e0;
+    }
+
+    .palette-selector {
+        height: 40px;
+    }
+
+    #gap {
+        height: 40px;
+    }
+
+    .tools a {
+        height: 40px;
+        min-height: 40px;
+    }
+
+    /* Consolidated mobile dimensions */
+    .tools > *,
+    button,
+    .tool-button,
+    .mini-preview,
+    .palette-selector,
+    #gap,
+    .tools a {
+        height: 40px;
+        min-height: 40px;
+    }
+}
+
+.logo {
+    position: fixed;
+
+    z-index: 1000;
+    width: 64px;
+    height: 64px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.palette-selector {
+    height: 36px;
+    padding: 0 32px;
+    border: none;
+    border-radius: 2px;
+    background-color: #18b2e0;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1.2rem;
+    font-weight: 500;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    padding-right: 48px;
+}
+
+.palette-selector:hover {
+    background-color: #45a049;
+}
+
+.palette-selector:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.coordinates-text {
+    height: 57.6px !important;
+    min-width: 72px !important;
+    font-size: 1.08rem !important;
+    background-color: #18b2e0;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+}
+
+#gap {
+    width: 15px;
+    height: 48px;
+}
+
+.tools-line-2 {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 10px;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+/* Make all elements in tools-line-2 the same height */
+.tools-line-2 > * {
+    height: 48px;
+    min-height: 48px;
+    box-sizing: border-box;
+}
+
+/* Make logo button match other tools */
+.tools a {
+    height: 48px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+}
+
+.resolution-selector {
+    height: 36px;
+    padding: 0 32px;
+    border: none;
+    border-radius: 2px;
+    background-color: #18b2e0;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1.2rem;
+    font-weight: 500;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    padding-right: 48px;
+}
+
+.resolution-selector:hover {
+    background-color: #45a049;
+}
+
+.resolution-selector:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Match the option styling */
+.resolution-selector option {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* Update styles for 0.8x tools size (20% reduction) */
+.tools {
+    gap: 8.8px !important;
+}
+
+.tools > * {
+    height: 57.6px !important;
+    min-height: 57.6px !important;
+    min-width: 57.6px !important;
+}
+
+.tool-icon {
+    width: 43.2px !important;
+    height: 43.2px !important;
+}
+
+#colorPicker {
+    width: 86.4px !important;
+    height: 86.4px !important;
+}
+
+.mini-preview {
+    width: 86.4px !important;
+    height: 86.4px !important;
+}
+
+.coordinates-text {
+    height: 57.6px !important;
+    min-width: 72px !important;
+    font-size: 1.08rem !important;
+}
+
+.palette-selector, .resolution-selector {
+    height: 57.6px !important;
+    font-size: 1.2rem !important;
+    padding: 0 38.4px !important;
+}
+
+/* Consolidated tool dimensions for both regular and 0.8x size */
+.tools > *, 
+.tools-bottom > *,
+.tools a,
+.tool-button,
+button,
+#colorPicker,
+.mini-preview,
+.coordinates-text,
+.palette-selector,
+.resolution-selector {
+    height: 57.6px;
+    min-height: 57.6px;
+    min-width: 57.6px;
+    box-sizing: border-box;
+}
+
+/* Consolidated palette and resolution selector styles */
+.palette-selector,
+.resolution-selector {
+    height: 57.6px;
+    padding: 0 38.4px;
+    border: none;
+    border-radius: 2px;
+    background-color: #18b2e0;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1.2rem;
+    font-weight: 500;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    padding-right: 48px;
+}
+
+.palette-selector:hover,
+.resolution-selector:hover {
+    background-color: #45a049;
+}
+
+.palette-selector:focus,
+.resolution-selector:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Consolidated dimensions for color picker and mini-preview */
+#colorPicker,
+.mini-preview {
+    width: 86.4px;
+    height: 86.4px;
+}
+
+.version-display {
+    position: fixed;
+    bottom: 5px;
+    left: 5px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.7rem;
+    z-index: 100;
+    pointer-events: none;
+    font-family: 'Roboto', sans-serif;
+}
