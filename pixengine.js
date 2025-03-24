@@ -1,61 +1,3 @@
-// Add the palettes definition at the top of the file
-window.palettes = {
-    default: [
-        '#1a1c2c', '#5d275d', '#b13e53', '#ef7d57',
-        '#ffcd75', '#a7f070', '#38b764', '#257179',
-        '#29366f', '#3b5dc9', '#41a6f6', '#73eff7',
-        '#f4f4f4', '#94b0c2', '#566c86', '#333c57'
-    ],
-    steamlords: [
-        '#213b25', '#3a604a', '#4f7754', '#a19f7c',
-        '#77744f', '#775c4f', '#603b3a', '#3b2137',
-        '#170e19', '#2f213b', '#433a60', '#4f5277',
-        '#65738c', '#7c94a1', '#a0b9ba', '#c0d1cc'
-    ],
-    pico8: [
-        '#000000', '#1D2B53', '#7E2553', '#008751',
-        '#AB5236', '#5F574F', '#C2C3C7', '#FFF1E8',
-        '#FF004D', '#FFA300', '#FFEC27', '#00E436',
-        '#29ADFF', '#83769C', '#FF77A8', '#FFCCAA'
-    ],
-    cga: [
-        '#000000', '#555555', '#aaaaaa', '#ffffff',
-        '#0000aa', '#5555ff', '#00aa00', '#55ff55',
-        '#00aaaa', '#55ffff', '#aa0000', '#ff5555',
-        '#aa00aa', '#ff55ff', '#aa5500', '#ffff55'
-    ],
-    na16: [
-        '#8c8fae', '#584563', '#3e2137', '#9a6348',
-        '#d79b7d', '#f5edba', '#c0c741', '#647d34',
-        '#e4943a', '#9d303b', '#d26471', '#70377f',
-        '#7ec4c1', '#34859d', '#17434b', '#1f0e1c'
-    ],
-    makecode: [
-        '#00000000', '#ffffff', '#ff2121', '#ff93c4',
-        '#ff8135', '#fff609', '#249ca3', '#78dc52',
-        '#003fad', '#87f2ff', '#8e2ec4', '#a4839f',
-        '#5c406c', '#e5cdc4', '#91463d', '#000000'
-    ],
-    gameboy: [
-        '#0f380f', '#306230', '#8bac0f', '#9bbc0f',
-        '#0f380f', '#306230', '#8bac0f', '#9bbc0f',
-        '#0f380f', '#306230', '#8bac0f', '#9bbc0f',
-        '#0f380f', '#306230', '#8bac0f', '#9bbc0f'
-    ],
-    grayscale: [
-        '#000000', '#111111', '#222222', '#333333',
-        '#444444', '#555555', '#666666', '#777777',
-        '#888888', '#999999', '#aaaaaa', '#bbbbbb',
-        '#cccccc', '#dddddd', '#eeeeee', '#ffffff'
-    ],
-    pastel: [
-        '#ffadad', '#ffd6a5', '#fdffb6', '#caffbf',
-        '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff',
-        '#ffd1d1', '#ffe3c8', '#ffffcc', '#e2ffd4',
-        '#cbf5ff', '#c4d7ff', '#d4ccff', '#ffdbff'
-    ]
-};
-
 const APP_VERSION = '1.0.3'; // Match this with meta tag and title
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -98,6 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageInput = document.getElementById('imageInput');
     const leftPalette = document.querySelector('.left-palette');
     const rightPalette = document.querySelector('.right-palette');
+    const leftPalette2 = document.querySelector('.left-palette2');
+    const rightPalette2 = document.querySelector('.right-palette2');
     const miniPreview = document.getElementById('miniPreview');
     const paletteSelector = document.getElementById('paletteSelector');
     const toolsDiv = document.querySelector('.tools');
@@ -179,19 +123,56 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear existing swatches
         leftPalette.innerHTML = '';
         rightPalette.innerHTML = '';
+   
+        leftPalette2.innerHTML = '';
+        rightPalette2.innerHTML = '';
 
-        // Split colors into two palettes
-        const leftColors = currentPalette.slice(0, 8);
-        const rightColors = currentPalette.slice(8);
+        // Determine palette distribution based on size
+        if (currentPalette.length <= 16) {
+            // For 16 or fewer colors, use only main palettes
+            const leftColors = currentPalette.slice(0, 8);
+            const rightColors = currentPalette.slice(8);
 
-        // Create color swatches for both palettes
-        leftColors.forEach(color => {
-            leftPalette.appendChild(createColorSwatch(color));
-        });
+            // Hide secondary palettes
+            leftPalette2.style.display = 'none';
+            rightPalette2.style.display = 'none';
 
-        rightColors.forEach(color => {
-            rightPalette.appendChild(createColorSwatch(color));
-        });
+            // Create color swatches for main palettes
+            leftColors.forEach(color => {
+                leftPalette.appendChild(createColorSwatch(color));
+            });
+
+            rightColors.forEach(color => {
+                rightPalette.appendChild(createColorSwatch(color));
+            });
+        } else {
+            // For up to 32 colors, use all palettes
+            const leftColors = currentPalette.slice(0, 8);
+            const rightColors = currentPalette.slice(8, 16);
+            const leftColors2 = currentPalette.slice(16, 24);
+            const rightColors2 = currentPalette.slice(24, 32);
+
+            // Show secondary palettes
+            leftPalette2.style.display = 'flex';
+            rightPalette2.style.display = 'flex';
+
+            // Create color swatches for all palettes
+            leftColors.forEach(color => {
+                leftPalette.appendChild(createColorSwatch(color));
+            });
+
+            rightColors.forEach(color => {
+                rightPalette.appendChild(createColorSwatch(color));
+            });
+
+            leftColors2.forEach(color => {
+                leftPalette2.appendChild(createColorSwatch(color));
+            });
+
+            rightColors2.forEach(color => {
+                rightPalette2.appendChild(createColorSwatch(color));
+            });
+        }
 
         // Update current color if it's not in the new palette
         if (!currentPalette.includes(currentColor) && !isEraser) {
@@ -1329,4 +1310,103 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add flood fill button click handler
     floodFillBtn.addEventListener('click', () => switchTool('fill'));
+
+    // Add these event listeners and functions
+    document.getElementById('share').addEventListener('click', shareArtwork);
+    document.getElementById('copyShareUrl').addEventListener('click', copyShareUrl);
+
+    function getPixelData() {
+        const pixels = document.querySelectorAll('.pixel');
+        return Array.from(pixels).map(pixel => pixel.style.backgroundColor || 'transparent');
+    }
+
+    function loadPixelData(pixelData) {
+        const pixels = document.querySelectorAll('.pixel');
+        pixels.forEach((pixel, index) => {
+            if (index < pixelData.length) {
+                pixel.style.backgroundColor = pixelData[index];
+            }
+        });
+        updateMiniPreview();
+    }
+
+    // Update the shareArtwork function to use the new getPixelData function
+    function shareArtwork() {
+        // Get the current pixel data
+        const pixelData = getPixelData();
+        const currentPalette = document.getElementById('paletteSelector').value;
+        
+        // Create a compressed data string
+        const artworkData = btoa(JSON.stringify({
+            pixels: pixelData,
+            palette: currentPalette,
+            resolution: currentResolution // Also save the resolution
+        }));
+        
+        // Generate the share URL
+        const shareUrl = `${window.location.origin}${window.location.pathname}?art=${artworkData}`;
+        
+        // Show the share modal
+        document.getElementById('modalOverlay').style.display = 'block';
+        document.getElementById('shareModal').style.display = 'block';
+        document.getElementById('shareUrl').value = shareUrl;
+    }
+
+    function copyShareUrl() {
+        const shareUrlInput = document.getElementById('shareUrl');
+        shareUrlInput.select();
+        document.execCommand('copy');
+        
+        // Optional: Show feedback that URL was copied
+        const copyButton = document.getElementById('copyShareUrl');
+        const originalText = copyButton.textContent;
+        copyButton.textContent = 'Copied!';
+        setTimeout(() => {
+            copyButton.textContent = originalText;
+        }, 2000);
+    }
+
+    // Update the load handler to handle resolution
+    window.addEventListener('load', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const artData = urlParams.get('art');
+        
+        if (artData) {
+            try {
+                const decodedData = JSON.parse(atob(artData));
+                
+                // Set the resolution first if it exists
+                if (decodedData.resolution) {
+                    currentResolution = decodedData.resolution;
+                    document.getElementById('resolutionSelector').value = decodedData.resolution.toString();
+                    createGridWithoutSave(decodedData.resolution);
+                }
+                
+                // Set the palette
+                document.getElementById('paletteSelector').value = decodedData.palette;
+                currentPalette = palettes[decodedData.palette];
+                updateColorSwatches();
+                
+                // Load the pixel data
+                loadPixelData(decodedData.pixels);
+                
+                showNotification('Shared artwork loaded!', 2000);
+            } catch (error) {
+                console.error('Failed to load shared artwork:', error);
+                showNotification('Failed to load shared artwork', 3000);
+            }
+        }
+    });
+
+    // Add this to your existing modal handling code
+    function hideModal(modalId) {
+        document.getElementById('modalOverlay').style.display = 'none';
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Add event listener for the close button
+    document.querySelector('#shareModal .modal-close').addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event from bubbling to overlay
+        hideModal('shareModal');
+    });
 });

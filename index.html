@@ -86,13 +86,10 @@
             <div class="editor-content">
                 <div class="tools">
 
-                    
-                    <div class="tools-top-left">
-                        <div id="miniPreview" class="mini-preview"></div>
-                      
-                    </div>
-
+                 
                     <div class="tools-top-middle">
+                        <div id="miniPreview" class="mini-preview"></div>
+                        <input type="color" id="colorPicker" value="#000000" style="display: none;">
                         <button id="pen" class="tool-button"><img src="Icon_Pen.Png" alt="Pen" class="tool-icon"></button>
                         <button id="eraser" class="tool-button"><img src="Icon_erase.Png" alt="Eraser" class="tool-icon"></button>
                         <button id="floodfill" class="tool-button"><img src="Icon_Fill.Png" alt="Fill" class="tool-icon"></button>
@@ -104,13 +101,7 @@
                       
                     </div>
 
-                    <div class="tools-top-right">
-                   
-                        <input type="color" id="colorPicker" value="#000000">
-                       
-                    </div>
-
-              
+         
                  
                    
                    
@@ -120,9 +111,11 @@
                 </div>
  
                 <div class="main-editor">
+                    <div class="color-palette left-palette2"></div>
                     <div class="color-palette left-palette"></div>
                     <div id="pixelGrid"></div>
                     <div class="color-palette right-palette"></div>
+                    <div class="color-palette right-palette2"></div>
                 </div>
                 <div class="tools-bottom">
 
@@ -137,7 +130,7 @@
         
                     </select>
                     <select id="paletteSelector" class="palette-selector">
-                        <option value="default">Sweetie 16</option>
+                        <option value="default">Default</option>
                         <option value="makecode">MakeCode</option>
                         <option value="steamlords">Steam Lords</option>
                         <option value="pico8">Pico-8</option>
@@ -146,11 +139,15 @@
                         <option value="gameboy">GameBoy</option>
                         <option value="grayscale">Grayscale</option>
                         <option value="pastel">Pastel</option> 
+                        <option value="jehkoba32">Jehkoba 32</option>
+                        <option value="endesga32">Endesga 32</option>
+                        <option value="nanner32">Nanner 32</option>
                     </select>
                     
                     <button id="save"><img src="Icon_Folder_Save.Png" alt="Pen" class="tool-icon"></button>
                     <button id="import"><img src="Icon_Folder_Open.Png" alt="Pen" class="tool-icon"></button>
                     <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                    <button id="share"><img src="share.Png" alt="Share" class="tool-icon"></button>
                     <button id="clear" class="tool-button"><img src="Icon_clear.Png" alt="Clear" class="tool-icon"></button>
                     <button id="exportMakeCode"><img src="makecode.png" alt="Pen" class="tool-icon"></button>
                     <button id="logoBtn" class="tool-button"><img src="logo.png" alt="Reality Boffins - Visit our website" class="tool-icon"></button>
@@ -212,6 +209,24 @@
             <p style="margin: 10px 0; color: #666;">You can now paste it into your MakeCode project.</p>
         </div>
 
+    <!-- Update the Share URL Modal -->
+    <div id="shareModal" class="modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+        background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 1000;
+        text-align: center; min-width: 300px;">
+        <h3 style="margin-top: 0; color: #333;">Share Your Artwork</h3>
+
+        
+        <input type="text" id="shareUrl" style="width: 90%; padding: 8px; margin: 10px 0;" readonly>
+        <div style="display: flex; justify-content: center; margin-top: 15px; gap: 10px;">
+            <button id="copyShareUrl" 
+                style="background-color: #18b2e0; color: white; border: none; padding: 8px 16px; 
+                border-radius: 4px; cursor: pointer;">Copy</button>
+            <button id="closeShareModal" class="modal-close"  
+                style="background-color: #18b2e0; color: white; border: none; padding: 8px 16px; 
+                border-radius: 4px; cursor: pointer;">Close</button>
+        </div>
+    </div>
+    <script src="palettes.js"></script>
     <script src="pixengine.js"></script>
 </body>
 </html>

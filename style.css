@@ -37,15 +37,12 @@ body {
 }
 
 .editor-container {
-    background-color: rgba(19, 18, 26, 0.4);
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    width: fit-content;
-    margin: 0 auto;
-
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 4px;
     box-sizing: border-box;
 }
 
@@ -60,33 +57,41 @@ body {
 
 .main-editor {
     display: flex;
-    gap: 15px;
+    gap: 4px;
     justify-content: center;
     align-items: center;
-    padding: 10px 0;
+    padding: 0;
     width: fit-content;
     margin: 0 auto;
     flex-shrink: 0;
 }
 
-.color-palette {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 3px;
-    padding: 4px;
-    height: min(70vh, 70vw);
+.color-palette,
+.left-palette,
+.right-palette,
+.left-palette2,
+.right-palette2 {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 5px 0;
+    height: calc(min(70vh, 70vw) / 2);
+    width: calc(min(70vh, 70vw) / 2);
+    align-items: center;
+    box-sizing: border-box;
 }
 
 .color-swatch {
-    width: 80%;
-    aspect-ratio: 1;
-    border-radius: 2px;
+    width: 100%;
+    height: calc((100% - 35px) / 8);
+    aspect-ratio: 1 / 1;
+    margin: 0;
+    padding: 0;
+    border: none;
     cursor: pointer;
-    border: 1px solid rgb(58, 58, 58);
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(214, 214, 214, 0.1);
     position: relative;
-  
+    flex-shrink: 0;
 }
 
 /* Rule for transparent swatches */
@@ -146,9 +151,10 @@ body {
     display: flex;
     gap: 7.5px;
     align-items: center;
+    justify-content: center;
     height: 56px;
     min-height: 56px;
-   
+    width: 100%;
 }
 
 .tools-top-right {
@@ -226,8 +232,8 @@ button, .tool-button {
 }
 
 #colorPicker {
-    width: 86.4px !important;
-    height: 86.4px !important;
+    width: 57.6px !important;
+    height: 57.6px !important;
     padding: 0;
     border: none;
     border-radius: 2px;
@@ -257,7 +263,7 @@ button:hover {
     image-rendering: crisp-edges;
     width: min(70vh, 70vw);
     height: min(70vh, 70vw);
-    border: 1px solid #333c57;
+    border: none;
     aspect-ratio: 1;
 }
 
@@ -275,10 +281,10 @@ button:hover {
 }
 
 .mini-preview {
-    width: 86.4px !important;
-    height: 86.4px !important;
+    width: 57.6px !important;
+    height: 57.6px !important;
     border: 2px solid #333c57;
-    border-radius: 8px;
+    border-radius: 2px;
     display: grid;
     grid-template-columns: repeat(16, 1fr);
     gap: 0;
@@ -320,7 +326,9 @@ button:hover {
         gap: 30px;
     }
 
-    .color-palette {
+    .color-palette,
+    .left-palette2,
+    .right-palette2 {
         grid-template-columns: 1fr;
         width: min(8vh, 8vw);
         height: min(70vh, 70vw);
@@ -552,16 +560,6 @@ button:hover {
     height: 43.2px !important;
 }
 
-#colorPicker {
-    width: 86.4px !important;
-    height: 86.4px !important;
-}
-
-.mini-preview {
-    width: 86.4px !important;
-    height: 86.4px !important;
-}
-
 .coordinates-text {
     height: 57.6px !important;
     min-width: 72px !important;
@@ -625,13 +623,6 @@ button,
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
 
-/* Consolidated dimensions for color picker and mini-preview */
-#colorPicker,
-.mini-preview {
-    width: 86.4px;
-    height: 86.4px;
-}
-
 .version-display {
     position: fixed;
     bottom: 5px;
@@ -642,3 +633,19 @@ button,
     pointer-events: none;
     font-family: 'Roboto', sans-serif;
 }
+
+/* Add specific styling for palette pairs */
+.left-palette2,
+.right-palette2 {
+    margin-bottom: 0;
+}
+
+/* Container for each pair of palettes */
+.left-palettes,
+.right-palettes {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    height: min(70vh, 70vw);
+}
+
