@@ -1,4 +1,4 @@
-const APP_VERSION = '1.0.3'; // Match this with meta tag and title
+const APP_VERSION = '1.0.4'; // Match this with meta tag and title
 
 document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('dragover', (e) => {

@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- Add version meta tag -->
-    <meta name="app-version" content="1.0.4">
+    <meta name="app-version" content="1.0.5">
     <!-- Add no-cache meta tags -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Pixel Maker - Version 1.0.4</title>
+    <title>Pixel Maker - Version 1.0.5</title>
     <link rel="stylesheet" href="style.css">
     
     <!-- PWA meta tags -->
@@ -79,7 +79,7 @@
     </script>
 </head>
 <body>
-    <div class="version-display">v1.0.4</div>
+    <div class="version-display">v1.0.5</div>
     <div class="container">
         <div class="editor-container">
 
@@ -88,17 +88,30 @@
 
                  
                     <div class="tools-top-middle">
-                        <div id="miniPreview" class="mini-preview"></div>
+                      
                         <input type="color" id="colorPicker" value="#000000" style="display: none;">
                         <button id="pen" class="tool-button"><img src="Icon_Pen.Png" alt="Pen" class="tool-icon"></button>
                         <button id="eraser" class="tool-button"><img src="Icon_erase.Png" alt="Eraser" class="tool-icon"></button>
                         <button id="floodfill" class="tool-button"><img src="Icon_Fill.Png" alt="Fill" class="tool-icon"></button>
                         <button id="colorpicker" class="tool-button"><img src="Icon_Pick.Png" alt="Clear" class="tool-icon"></button>
-                       
+                        <select id="paletteSelector" class="palette-selector">
+                            <option value="default">Default</option>
+                            <option value="makecode">MakeCode</option>
+                            <option value="steamlords">Steam Lords</option>
+                            <option value="pico8">Pico-8</option>
+                            <option value="cga">CGA</option>
+                            <option value="na16">NA16</option>
+                            <option value="gameboy">GameBoy</option>
+                            <option value="grayscale">Grayscale</option>
+                            <option value="pastel">Pastel</option> 
+                            <option value="jehkoba32">Jehkoba 32</option>
+                            <option value="endesga32">Endesga 32</option>
+                            <option value="nanner32">Nanner 32</option>
+                        </select>
                         <button id="undo" class="tool-button"><img src="Icon_Arrow_2_Left.Png" alt="Undo" class="tool-icon"></button>
                         <button id="redo" class="tool-button"><img src="Icon_Arrow_2_Right.Png" alt="Redo" class="tool-icon"></button>
                         <button id="paste" class="tool-button"><img src="Icon_Paste.Png" alt="Paste" class="tool-icon"></button>
-                      
+                        <button id="clear" class="tool-button"><img src="Icon_clear.Png" alt="Clear" class="tool-icon"></button>
                     </div>
 
          
@@ -122,6 +135,7 @@
                   
 
                     <div class="tools-bottom-middle">
+                        <div id="miniPreview" class="mini-preview"></div>
                         <div id="coordinates" class="coordinates-text">0,0</div>
                     <select id="resolutionSelector" class="resolution-selector">
                         <option value="8">8x8</option>
@@ -129,26 +143,15 @@
                         <option value="32">32x32</option>
         
                     </select>
-                    <select id="paletteSelector" class="palette-selector">
-                        <option value="default">Default</option>
-                        <option value="makecode">MakeCode</option>
-                        <option value="steamlords">Steam Lords</option>
-                        <option value="pico8">Pico-8</option>
-                        <option value="cga">CGA</option>
-                        <option value="na16">NA16</option>
-                        <option value="gameboy">GameBoy</option>
-                        <option value="grayscale">Grayscale</option>
-                        <option value="pastel">Pastel</option> 
-                        <option value="jehkoba32">Jehkoba 32</option>
-                        <option value="endesga32">Endesga 32</option>
-                        <option value="nanner32">Nanner 32</option>
-                    </select>
-                    
+                  
+                    <button id="openGallery"><img src="Icon_Folder_Open.Png" alt="Pen" class="tool-icon"></button>
+                    <button id="saveToGallery"><img src="Icon_Disk.Png" alt="Pen" class="tool-icon"></button>
+                    <button id="import"><img src="Import.png" alt="Pen" class="tool-icon"></button>
+                  
                     <button id="save"><img src="Icon_Folder_Save.Png" alt="Pen" class="tool-icon"></button>
-                    <button id="import"><img src="Icon_Folder_Open.Png" alt="Pen" class="tool-icon"></button>
                     <input type="file" id="imageInput" accept="image/*" style="display: none;">
-                    <button id="share"><img src="share.Png" alt="Share" class="tool-icon"></button>
-                    <button id="clear" class="tool-button"><img src="Icon_clear.Png" alt="Clear" class="tool-icon"></button>
+                    <button id="share"><img src="share.png" alt="Share" class="tool-icon"></button>
+                    
                     <button id="exportMakeCode"><img src="makecode.png" alt="Pen" class="tool-icon"></button>
                     <button id="logoBtn" class="tool-button"><img src="logo.png" alt="Reality Boffins - Visit our website" class="tool-icon"></button>
                    </div>   

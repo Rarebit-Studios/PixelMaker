@@ -128,13 +128,10 @@ body {
 
 .tools {
     display: flex;
-    gap: 8.8px;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
+    gap: 8px;
     width: 100%;
-    margin: 0 auto;
-    flex-shrink: 0;
 }
 
 .tools-top-left {
@@ -152,9 +149,10 @@ body {
     gap: 7.5px;
     align-items: center;
     justify-content: center;
-    height: 56px;
-    min-height: 56px;
+    height: 57.6px;
+    min-height: 57.6px;
     width: 100%;
+    flex-wrap: wrap;
 }
 
 .tools-top-right {
@@ -336,85 +334,42 @@ button:hover {
 }
 
 /* Mobile Adjustments */
-@media (max-width: 400px) {
-    .container {
-        padding: 5px;
-    }
-    
-    .editor-container {
-        padding: 8px;
-    }
-    
-    .editor-content {
-        gap: 5px;
-    }
-    
-    .tools {
-        gap: 3px;
-    }
-    
-    .tools > * {
-        height: 40px; /* Slightly smaller on mobile */
-        min-height: 40px;
-    }
-    
-    button, .tool-button {
-        padding: 0 24px;
-        height: 40px;
-    }
-    
-    h1 {
-        margin-bottom: 10px;
+@media (max-width: 768px) {
+    .tools-top-middle {
+        padding: 0;
+        gap: 4px;
+        justify-content: center;
     }
 
-    .color-palette {
-        gap: 3px;
-        padding: 3px;
-    }
-
-    .main-editor {
-        gap: 5px;
-        padding: 3px 0;
+    .tools-top-middle > * {
+        width: 48px !important;
+        height: 48px !important;
+        min-width: 48px !important;
+        min-height: 48px !important;
     }
 
     .mini-preview {
-        width: 40px;
-        height: 40px;
+        width: 48px !important;
+        height: 48px !important;
     }
 
-    .logo {
-        width: 86.4px !important;
-        height: 86.4px !important;
-        padding: 0;
-        border: none;
-        border-radius: 2px;
-        cursor: pointer;
-        background-color: #18b2e0;
+    #colorPicker {
+        width: 48px !important;
+        height: 48px !important;
     }
 
-    .palette-selector {
-        height: 40px;
+    .tool-icon {
+        width: 32px !important;
+        height: 32px !important;
+        padding: 2px;
     }
 
-    #gap {
-        height: 40px;
-    }
-
-    .tools a {
-        height: 40px;
-        min-height: 40px;
-    }
-
-    /* Consolidated mobile dimensions */
-    .tools > *,
-    button,
-    .tool-button,
-    .mini-preview,
-    .palette-selector,
-    #gap,
-    .tools a {
-        height: 40px;
-        min-height: 40px;
+    /* Ensure consistent button sizing */
+    button, 
+    .tool-button {
+        width: 48px !important;
+        height: 48px !important;
+        padding: 2px;
     }
 }
 
