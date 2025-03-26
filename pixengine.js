@@ -1365,23 +1365,79 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMiniPreview();
     }
 
-    // Update the shareArtwork function to use the new getPixelData function
+    // Add function to convert color to palette index
+    function getColorIndex(color, palette) {
+        if (!color || color === 'transparent') return -1;
+        
+        // Convert RGB to hex if needed
+        const hexColor = color.startsWith('rgb') ? rgbToHex(color) : color;
+        
+        // Find exact match first
+        const index = palette.findIndex(c => c.toLowerCase() === hexColor.toLowerCase());
+        if (index !== -1) return index;
+        
+        // If no exact match, find closest color
+        const rgb = hexToRgb(hexColor);
+        if (!rgb) return -1;
+        
+        return findClosestColorIndex(rgb.r, rgb.g, rgb.b, palette);
+    }
+
+    // Add function to find closest color index
+    function findClosestColorIndex(r, g, b, palette) {
+        let minDistance = Infinity;
+        let closestIndex = 0;
+        
+        palette.forEach((color, index) => {
+            const rgb = hexToRgb(color);
+            if (rgb) {
+                const distance = colorDistance(r, g, b, rgb.r, rgb.g, rgb.b);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = index;
+                }
+            }
+        });
+        
+        return closestIndex;
+    }
+
+    // Update shareArtwork to use indices
     function shareArtwork() {
-        // Get the current pixel data
         const pixelData = getPixelData();
         const currentPalette = document.getElementById('paletteSelector').value;
+        const palette = palettes[currentPalette];
         
-        // Create a compressed data string
+        // Convert colors to palette indices
+        const indexData = pixelData.map(color => getColorIndex(color, palette));
+        
+        // Compress runs of identical indices
+        let compressed = [];
+        let count = 1;
+        let current = indexData[0];
+        
+        for (let i = 1; i <= indexData.length; i++) {
+            if (i < indexData.length && indexData[i] === current) {
+                count++;
+            } else {
+                // Store as [count, index]
+                compressed.push([count, current]);
+                if (i < indexData.length) {
+                    current = indexData[i];
+                    count = 1;
+                }
+            }
+        }
+        
+        // Create the compressed data string
         const artworkData = btoa(JSON.stringify({
-            pixels: pixelData,
-            palette: currentPalette,
-            resolution: currentResolution // Also save the resolution
+            p: compressed,         // compressed pixel indices
+            l: currentPalette,    // palette name
+            r: currentResolution  // resolution
         }));
         
-        // Generate the share URL
         const shareUrl = `${window.location.origin}${window.location.pathname}?art=${artworkData}`;
         
-        // Show the share modal
         document.getElementById('modalOverlay').style.display = 'block';
         document.getElementById('shareModal').style.display = 'block';
         document.getElementById('shareUrl').value = shareUrl;
@@ -1401,7 +1457,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     }
 
-    // Update the load handler to handle resolution
+    // Update load handler to decode indices
     window.addEventListener('load', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const artData = urlParams.get('art');
@@ -1410,22 +1466,32 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const decodedData = JSON.parse(atob(artData));
                 
-                // Set the resolution first if it exists
-                if (decodedData.resolution) {
-                    currentResolution = decodedData.resolution;
-                    document.getElementById('resolutionSelector').value = decodedData.resolution.toString();
-                    createGridWithoutSave(decodedData.resolution);
+                // Set resolution
+                const resolution = decodedData.r;
+                if (resolution) {
+                    currentResolution = resolution;
+                    document.getElementById('resolutionSelector').value = resolution.toString();
+                    createGridWithoutSave(resolution);
                 }
                 
-                // Set the palette
-                document.getElementById('paletteSelector').value = decodedData.palette;
-                currentPalette = palettes[decodedData.palette];
+                // Set palette
+                const paletteName = decodedData.l;
+                document.getElementById('paletteSelector').value = paletteName;
+                currentPalette = palettes[paletteName];
                 updateColorSwatches();
                 
-                // Load the pixel data
-                loadPixelData(decodedData.pixels);
+                // Decompress and convert indices back to colors
+                const compressed = decodedData.p;
+                let pixels = [];
                 
+                compressed.forEach(([count, index]) => {
+                    const color = index === -1 ? 'transparent' : currentPalette[index];
+                    pixels = pixels.concat(Array(count).fill(color));
+                });
+                
+                loadPixelData(pixels);
                 showNotification('Shared artwork loaded!', 2000);
+                
             } catch (error) {
                 console.error('Failed to load shared artwork:', error);
                 showNotification('Failed to load shared artwork', 3000);

@@ -71,6 +71,71 @@ A powerful, web-based pixel art creation tool designed for both desktop and mobi
 - Intelligent color matching when switching palettes
 - Transparency support
 
+### Share URL Compression Format
+The share URL uses a compressed format to efficiently encode pixel art data:
+
+#### Data Structure
+```javascript
+{
+    "p": [[count, colorIndex], ...], // Compressed pixel data
+    "l": "paletteName",             // Palette identifier
+    "r": resolution                 // Canvas resolution
+}
+```
+
+#### Compression Method
+1. **Color Index Mapping**
+   - Each pixel color is mapped to its palette index (0-31)
+   - Transparent pixels are mapped to -1
+   - This reduces color data from 7 characters (#RRGGBB) to 1-2 digits
+
+2. **Run-Length Encoding (RLE)**
+   - Consecutive identical colors are compressed into [count, colorIndex] pairs
+   - Example: 
+     - Original: [0,0,0,0,1,1,1,-1,-1]
+     - Compressed: [[4,0], [3,1], [2,-1]]
+
+3. **Base64 Encoding**
+   - The final JSON is encoded in Base64 to ensure URL safety
+
+#### Example
+```javascript
+// Original pixel data (16x16 image)
+"#FF0000,#FF0000,transparent,#00FF00..." (256 colors * 7 chars each)
+
+// Compressed format
+{
+    "p": [[2,4], [1,-1], [1,7]...],  // [count, colorIndex] pairs
+    "l": "default",                   // Palette name
+    "r": 16                          // 16x16 resolution
+}
+```
+
+#### Compression Benefits
+- **Size Reduction**: 
+  - Color values: ~85% reduction (7 chars → 1-2 digits)
+  - RLE: Variable reduction (best with large same-color areas)
+  - Example: 16x16 solid color image
+    - Uncompressed: ~3,584 bytes (256 * 7 chars)
+    - Compressed: ~20 bytes [[256,4]]
+
+- **Palette Integrity**:
+  - Colors are always matched to exact palette colors
+  - Ensures consistency across shares
+
+#### Backward Compatibility
+- The system can still load older uncompressed share URLs
+- Automatically detects and handles both formats
+
+### Loading Process
+1. Decode Base64 string
+2. Parse JSON data
+3. Extract resolution and create canvas
+4. Set palette
+5. Decompress RLE data
+6. Convert color indices back to actual colors
+7. Render to canvas
+
 ## Usage Guide
 
 ### Getting Started
