@@ -1510,4 +1510,143 @@ document.addEventListener('DOMContentLoaded', () => {
         e.stopPropagation(); // Prevent event from bubbling to overlay
         hideModal('shareModal');
     });
+
+    // Add these functions after other function declarations
+    function saveToGallery() {
+        const canvas = saveImage(10);
+        const timestamp = new Date().toISOString();
+        const galleryItem = {
+            id: Date.now(),
+            timestamp: timestamp,
+            imageData: canvas.toDataURL('image/png'),
+            resolution: currentResolution,
+            palette: paletteSelector.value,
+            pixels: getPixelData()
+        };
+
+        // Get existing gallery items
+        let galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
+        
+        // Add new item
+        galleryItems.push(galleryItem);
+        
+        // Save back to localStorage
+        localStorage.setItem('pixelGallery', JSON.stringify(galleryItems));
+        
+        showNotification('Artwork saved to gallery!');
+    }
+
+    function loadGallery() {
+        const galleryGrid = document.getElementById('galleryGrid');
+        galleryGrid.innerHTML = ''; // Clear existing items
+        
+        // Get gallery items
+        const galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
+        
+        if (galleryItems.length === 0) {
+            galleryGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">No saved artwork yet</p>';
+            return;
+        }
+        
+        // Create gallery items
+        galleryItems.forEach(item => {
+            const galleryItem = document.createElement('div');
+            galleryItem.style.cssText = `
+                position: relative;
+                aspect-ratio: 1;
+                border: 2px solid #ccc;
+                border-radius: 4px;
+                overflow: hidden;
+                cursor: pointer;
+            `;
+            
+            // Create thumbnail
+            const thumbnail = document.createElement('img');
+            thumbnail.src = item.imageData;
+            thumbnail.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            `;
+            
+            // Create delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerHTML = '×';
+            deleteBtn.style.cssText = `
+                position: absolute;
+                top: 2px;
+                right: 2px;
+                background: rgba(255, 0, 0, 0.7);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+                display: none;
+            `;
+            
+            // Show delete button on hover
+            galleryItem.addEventListener('mouseenter', () => deleteBtn.style.display = 'block');
+            galleryItem.addEventListener('mouseleave', () => deleteBtn.style.display = 'none');
+            
+            // Handle delete
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
+                const updatedItems = galleryItems.filter(i => i.id !== item.id);
+                localStorage.setItem('pixelGallery', JSON.stringify(updatedItems));
+                galleryItem.remove();
+                showNotification('Item deleted from gallery');
+                
+                // Show "No saved artwork" message if gallery is empty
+                if (updatedItems.length === 0) {
+                    loadGallery();
+                }
+            });
+            
+            // Handle click to load artwork
+            galleryItem.addEventListener('click', () => {
+                // Set resolution
+                document.getElementById('resolutionSelector').value = item.resolution;
+                currentResolution = item.resolution;
+                createGridWithoutSave(item.resolution);
+                
+                // Set palette
+                paletteSelector.value = item.palette;
+                currentPalette = palettes[item.palette];
+                updateColorSwatches();
+                
+                // Load pixels
+                loadPixelData(item.pixels);
+                
+                // Hide modal
+                document.getElementById('modalOverlay').style.display = 'none';
+                document.getElementById('galleryModal').style.display = 'none';
+                
+                // Add to undo stack
+                pushState();
+                
+                showNotification('Artwork loaded from gallery');
+            });
+            
+            galleryItem.appendChild(thumbnail);
+            galleryItem.appendChild(deleteBtn);
+            galleryGrid.appendChild(galleryItem);
+        });
+    }
+
+    // Add these event listeners after other event listeners
+    document.getElementById('saveToGallery').addEventListener('click', saveToGallery);
+
+    document.getElementById('openGallery').addEventListener('click', () => {
+        loadGallery();
+        document.getElementById('modalOverlay').style.display = 'block';
+        document.getElementById('galleryModal').style.display = 'block';
+    });
+
+    document.getElementById('closeGalleryModal').addEventListener('click', () => {
+        document.getElementById('modalOverlay').style.display = 'none';
+        document.getElementById('galleryModal').style.display = 'none';
+    });
 });
