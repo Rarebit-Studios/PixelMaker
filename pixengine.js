@@ -1317,7 +1317,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function hideModals() {
-        const modals = ['modalOverlay', 'clearModal', 'resolutionModal', 'copyModal'];
+        const modals = [
+            'modalOverlay', 
+            'clearModal', 
+            'resolutionModal', 
+            'copyModal', 
+            'galleryModal',
+            'deleteConfirmModal',
+            'deleteAllConfirmModal'
+        ];
         modals.forEach(id => {
             const element = document.getElementById(id);
             if (element) element.style.display = 'none';
@@ -1537,116 +1545,277 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadGallery() {
+        const galleryModal = document.getElementById('galleryModal');
         const galleryGrid = document.getElementById('galleryGrid');
-        galleryGrid.innerHTML = ''; // Clear existing items
+        
+        // Clear existing items
+        galleryGrid.innerHTML = '';
         
         // Get gallery items
         const galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
         
         if (galleryItems.length === 0) {
-            galleryGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">No saved artwork yet</p>';
-            return;
+            galleryGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #ccc; padding: 20px;">No saved artwork yet</p>';
+        } else {
+            // Create gallery items
+            galleryItems.forEach(item => {
+                const galleryItem = document.createElement('div');
+                galleryItem.style.cssText = `
+                    position: relative;
+                    aspect-ratio: 1;
+                    border: 2px solid #444;
+                    border-radius: 4px;
+                    overflow: hidden;
+                    cursor: pointer;
+                    background-color: #222;
+                    transition: transform 0.2s, border-color 0.2s;
+                    height: 120px;
+                `;
+                
+                // Create thumbnail
+                const thumbnail = document.createElement('img');
+                thumbnail.src = item.imageData;
+                thumbnail.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                    background-color: #222;
+                    image-rendering: pixelated;
+                `;
+                
+                // Create checkbox with updated styling
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.dataset.itemId = item.id;
+                checkbox.style.cssText = `
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    width: 24px;
+                    height: 24px;
+                    cursor: pointer;
+                    opacity: 1;
+                    z-index: 1;
+                    accent-color: #ff4444;
+                `;
+                
+                // Remove the opacity transitions from hover events
+                galleryItem.addEventListener('mouseenter', () => {
+                    galleryItem.style.transform = 'scale(1.02)';
+                    galleryItem.style.borderColor = '#18b2e0';
+                });
+                
+                galleryItem.addEventListener('mouseleave', () => {
+                    galleryItem.style.transform = 'scale(1)';
+                    galleryItem.style.borderColor = '#444';
+                });
+                
+                // Remove the checkbox visibility toggle
+                checkbox.addEventListener('change', () => {
+                    // Keep any other checkbox change handling if needed
+                });
+                
+                // Handle click to load artwork
+                galleryItem.addEventListener('click', (e) => {
+                    if (e.target !== checkbox) {
+                        // Set resolution
+                        document.getElementById('resolutionSelector').value = item.resolution;
+                        currentResolution = item.resolution;
+                        createGridWithoutSave(item.resolution);
+                        
+                        // Set palette
+                        paletteSelector.value = item.palette;
+                        currentPalette = palettes[item.palette];
+                        updateColorSwatches();
+                        
+                        // Load pixels
+                        loadPixelData(item.pixels);
+                        
+                        // Hide modal
+                        hideModal('galleryModal');
+                        
+                        // Add to undo stack
+                        pushState();
+                        
+                        showNotification('Artwork loaded from gallery');
+                    }
+                });
+                
+                galleryItem.appendChild(thumbnail);
+                galleryItem.appendChild(checkbox);
+                galleryGrid.appendChild(galleryItem);
+            });
         }
-        
-        // Create gallery items
-        galleryItems.forEach(item => {
-            const galleryItem = document.createElement('div');
-            galleryItem.style.cssText = `
-                position: relative;
-                aspect-ratio: 1;
-                border: 2px solid #ccc;
-                border-radius: 4px;
-                overflow: hidden;
-                cursor: pointer;
-            `;
-            
-            // Create thumbnail
-            const thumbnail = document.createElement('img');
-            thumbnail.src = item.imageData;
-            thumbnail.style.cssText = `
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-            `;
-            
-            // Create delete button
-            const deleteBtn = document.createElement('button');
-            deleteBtn.innerHTML = '×';
-            deleteBtn.style.cssText = `
-                position: absolute;
-                top: 2px;
-                right: 2px;
-                background: rgba(255, 0, 0, 0.7);
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 20px;
-                height: 20px;
-                cursor: pointer;
-                display: none;
-            `;
-            
-            // Show delete button on hover
-            galleryItem.addEventListener('mouseenter', () => deleteBtn.style.display = 'block');
-            galleryItem.addEventListener('mouseleave', () => deleteBtn.style.display = 'none');
-            
-            // Handle delete
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
-                const updatedItems = galleryItems.filter(i => i.id !== item.id);
-                localStorage.setItem('pixelGallery', JSON.stringify(updatedItems));
-                galleryItem.remove();
-                showNotification('Item deleted from gallery');
-                
-                // Show "No saved artwork" message if gallery is empty
-                if (updatedItems.length === 0) {
-                    loadGallery();
-                }
-            });
-            
-            // Handle click to load artwork
-            galleryItem.addEventListener('click', () => {
-                // Set resolution
-                document.getElementById('resolutionSelector').value = item.resolution;
-                currentResolution = item.resolution;
-                createGridWithoutSave(item.resolution);
-                
-                // Set palette
-                paletteSelector.value = item.palette;
-                currentPalette = palettes[item.palette];
-                updateColorSwatches();
-                
-                // Load pixels
-                loadPixelData(item.pixels);
-                
-                // Hide modal
-                document.getElementById('modalOverlay').style.display = 'none';
-                document.getElementById('galleryModal').style.display = 'none';
-                
-                // Add to undo stack
-                pushState();
-                
-                showNotification('Artwork loaded from gallery');
-            });
-            
-            galleryItem.appendChild(thumbnail);
-            galleryItem.appendChild(deleteBtn);
-            galleryGrid.appendChild(galleryItem);
-        });
     }
 
     // Add these event listeners after other event listeners
     document.getElementById('saveToGallery').addEventListener('click', saveToGallery);
 
     document.getElementById('openGallery').addEventListener('click', () => {
-        loadGallery();
+        loadGallery(); // Load gallery contents
         document.getElementById('modalOverlay').style.display = 'block';
-        document.getElementById('galleryModal').style.display = 'block';
+        document.getElementById('galleryModal').style.display = 'flex'; // Use flex display
     });
 
     document.getElementById('closeGalleryModal').addEventListener('click', () => {
         document.getElementById('modalOverlay').style.display = 'none';
         document.getElementById('galleryModal').style.display = 'none';
     });
+
+    // Add delete confirmation handlers
+    document.getElementById('deleteConfirmYes').addEventListener('click', () => {
+        const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+        const galleryModal = document.getElementById('galleryModal');
+        const itemId = parseInt(deleteConfirmModal.dataset.itemId);
+        
+        // Get gallery items
+        const galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
+        const updatedItems = galleryItems.filter(i => i.id !== itemId);
+        
+        // Save updated items
+        localStorage.setItem('pixelGallery', JSON.stringify(updatedItems));
+        
+        // Hide delete confirmation modal
+        deleteConfirmModal.style.display = 'none';
+        
+        // Show gallery modal (in case it was hidden)
+        galleryModal.style.display = 'flex';
+        
+        // Reload gallery
+        loadGallery();
+        
+        showNotification('Artwork deleted from gallery');
+    });
+
+    document.getElementById('deleteConfirmNo').addEventListener('click', () => {
+        document.getElementById('deleteConfirmModal').style.display = 'none';
+    });
+
+    // Add these event listeners after other event listeners
+    document.getElementById('deleteAllBtn').addEventListener('click', () => {
+        const selectedItems = document.querySelectorAll('#galleryGrid input[type="checkbox"]:checked');
+        
+        if (selectedItems.length === 0) {
+            showNotification('No items selected');
+            return;
+        }
+        
+        // Show delete confirmation modal
+        document.getElementById('deleteAllConfirmModal').style.display = 'block';
+    });
+
+    document.getElementById('deleteAllConfirmYes').addEventListener('click', () => {
+        const selectedItems = document.querySelectorAll('#galleryGrid input[type="checkbox"]:checked');
+        const selectedIds = Array.from(selectedItems).map(checkbox => parseInt(checkbox.dataset.itemId));
+        
+        // Get gallery items
+        let galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
+        
+        // Filter out selected items
+        galleryItems = galleryItems.filter(item => !selectedIds.includes(item.id));
+        
+        // Save updated items
+        localStorage.setItem('pixelGallery', JSON.stringify(galleryItems));
+        
+        // Hide delete confirmation modal
+        document.getElementById('deleteAllConfirmModal').style.display = 'none';
+        
+        // Show gallery modal
+        document.getElementById('galleryModal').style.display = 'flex';
+        
+        // Reload gallery
+        loadGallery();
+        
+        showNotification(`${selectedIds.length} item(s) deleted from gallery`);
+    });
+
+    document.getElementById('deleteAllConfirmNo').addEventListener('click', () => {
+        // Hide delete all confirmation modal
+        document.getElementById('deleteAllConfirmModal').style.display = 'none';
+    });
+
+    // Update hideModals function to include the new modal
+    function hideModals() {
+        const modals = [
+            'modalOverlay', 
+            'clearModal', 
+            'resolutionModal', 
+            'copyModal', 
+            'galleryModal',
+            'deleteConfirmModal',
+            'deleteAllConfirmModal'
+        ];
+        modals.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) element.style.display = 'none';
+        });
+    }
+
+    // Hide gallery modal on initial load
+    const galleryModal = document.getElementById('galleryModal');
+    if (galleryModal) {
+        galleryModal.style.display = 'none';
+    }
+
+    // Add this function to create and download spritesheet
+    function createSpritesheet() {
+        const selectedItems = document.querySelectorAll('#galleryGrid input[type="checkbox"]:checked');
+        
+        if (selectedItems.length === 0) {
+            showNotification('No items selected');
+            return;
+        }
+        
+        // Get gallery items
+        const galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
+        const selectedIds = Array.from(selectedItems).map(checkbox => parseInt(checkbox.dataset.itemId));
+        const selectedArtwork = galleryItems.filter(item => selectedIds.includes(item.id));
+        
+        // Calculate grid dimensions
+        const numItems = selectedArtwork.length;
+        const gridSize = Math.ceil(Math.sqrt(numItems)); // Make a square grid
+        
+        // Create canvas for spritesheet
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size (each sprite is 160x160 - scaled up from 16x16)
+        const spriteSize = 160; // 16 * 10 (scale)
+        canvas.width = gridSize * spriteSize;
+        canvas.height = gridSize * spriteSize;
+        
+        // Make canvas transparent
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Load all images and draw them to the spritesheet
+        let loadedImages = 0;
+        selectedArtwork.forEach((item, index) => {
+            const img = new Image();
+            img.onload = () => {
+                // Calculate position in grid
+                const x = (index % gridSize) * spriteSize;
+                const y = Math.floor(index / gridSize) * spriteSize;
+                
+                // Draw image
+                ctx.drawImage(img, x, y, spriteSize, spriteSize);
+                
+                loadedImages++;
+                
+                // When all images are loaded, download the spritesheet
+                if (loadedImages === numItems) {
+                    const link = document.createElement('a');
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                    link.download = `spritesheet-${timestamp}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    showNotification('Spritesheet created!');
+                }
+            };
+            img.src = item.imageData;
+        });
+    }
+
+    // Add event listener for the spritesheet button
+    document.getElementById('spritesheetBtn').addEventListener('click', createSpritesheet);
 });
