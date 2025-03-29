@@ -198,13 +198,36 @@ const mySprite = sprites.create(img`
 4. Copy generated code to MakeCode Arcade
 
 ## Version History
-- 1.0.5 - Current version
+- 1.0.8 - Current version
+  - Added automatic artwork naming system (AdjectiveNoun1234)
+  - Added filename display in browser tab and interface
+  - Added gallery system with thumbnail previews
+  - Added spritesheet creation from multiple artworks
+  - Added tooltips for all tools with shortcut information
+  - Added duplicate name prevention in gallery
+  - Improved sharing to include artwork names
+  
+- 1.0.7 - Previous version
+  - Added gallery batch operations (select all, delete multiple)
+  - Added persistent filenames across sessions
+  - Added filename display under gallery thumbnails
+  - Improved mobile interface responsiveness
+  
+- 1.0.6 - Previous version
+  - Added new color palettes (Steam Lords, Pico-8, CGA)
+  - Added GameBoy, Grayscale, and Pastel palettes
+  - Added Jehkoba32 color palette
+  - Improved touch interface
+
+- 1.0.5 - Previous version
   - Added 32-color palette support
   - Improved mobile interface
   - Added share functionality
+
 - 1.0.4 - Previous version
   - Added MakeCode export
   - Improved color handling
+
 - 1.0.3 - Initial release
 
 ## Credits
