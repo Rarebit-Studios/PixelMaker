@@ -40,6 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
+                    // Generate new random name before importing
+                    const randomName = nameGenerator.generate();
+                    const filenameDisplay = document.querySelector('.filename-display');
+                    if (filenameDisplay) {
+                        filenameDisplay.textContent = randomName;
+                    }
                     importImage(img);
                 };
                 img.src = event.target.result;
@@ -621,6 +627,12 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
+                    // Generate new random name before importing
+                    const randomName = nameGenerator.generate();
+                    const filenameDisplay = document.querySelector('.filename-display');
+                    if (filenameDisplay) {
+                        filenameDisplay.textContent = randomName;
+                    }
                     importImage(img);
                 };
                 img.src = event.target.result;
@@ -1386,6 +1398,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             const blob = await clipboardItem.getType(type);
                             const img = new Image();
                             img.onload = () => {
+                                // Generate new random name before importing
+                                const randomName = nameGenerator.generate();
+                                const filenameDisplay = document.querySelector('.filename-display');
+                                if (filenameDisplay) {
+                                    filenameDisplay.textContent = randomName;
+                                }
                                 importImage(img);
                             };
                             img.src = URL.createObjectURL(blob);
