@@ -1629,7 +1629,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hideModal('shareModal');
     });
 
-    // Update saveToGallery function to check for duplicates
+    // Update saveToGallery function
     function saveToGallery() {
         const canvas = saveImage(10);
         const timestamp = new Date().toISOString();
@@ -1643,12 +1643,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (nameExists) {
             showNotification(`"${currentFilename}" already exists in gallery`, 3000);
-            return; // Exit without saving
+            return;
         }
         
-        // If name doesn't exist, proceed with saving
+        // Create new gallery item with integer ID
         const galleryItem = {
-            id: Date.now(),
+            id: Math.floor(Date.now()), // Remove decimals to ensure integer
             name: currentFilename,
             timestamp: timestamp,
             imageData: canvas.toDataURL('image/png'),
@@ -1699,6 +1699,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     cursor: pointer;
                     background-color: #222;
                     transition: transform 0.2s, border-color 0.2s;
+                    width: 100%;  // This will make it fill the larger grid space
                 `;
                 
                 // Create thumbnail container
@@ -1722,6 +1723,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     image-rendering: pixelated;
                 `;
                 
+                // Create filename container with checkbox
+                const filenameContainer = document.createElement('div');
+                filenameContainer.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 5px;
+                    width: 100%;
+                    padding: 0 5px;
+                    box-sizing: border-box;
+                `;
+                
+                // Create checkbox with integer ID
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.dataset.itemId = Math.floor(item.id).toString(); // Ensure integer ID
+                checkbox.style.cssText = `
+                    width: 16px;
+                    height: 16px;
+                    cursor: pointer;
+                    accent-color: #ff4444;
+                `;
+                
                 // Create filename label
                 const filenameLabel = document.createElement('div');
                 filenameLabel.textContent = item.name || 'Untitled';
@@ -1729,28 +1753,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     color: #fff;
                     font-size: 0.8rem;
                     text-align: center;
-                    padding: 0 5px;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    width: 100%;
-                    box-sizing: border-box;
-                `;
-                
-                // Create checkbox with updated styling
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.dataset.itemId = item.id;
-                checkbox.style.cssText = `
-                    position: absolute;
-                    top: 5px;
-                    right: 5px;
-                    width: 24px;
-                    height: 24px;
-                    cursor: pointer;
-                    opacity: 1;
-                    z-index: 1;
-                    accent-color: #ff4444;
+                    flex: 1;
                 `;
                 
                 // Add hover effects
@@ -1796,13 +1802,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 
+                // Assemble the components
                 thumbnailContainer.appendChild(thumbnail);
+                filenameContainer.appendChild(checkbox);
+                filenameContainer.appendChild(filenameLabel);
                 galleryItem.appendChild(thumbnailContainer);
-                galleryItem.appendChild(filenameLabel);
-                galleryItem.appendChild(checkbox);
+                galleryItem.appendChild(filenameContainer);
                 galleryGrid.appendChild(galleryItem);
             });
         }
+
+        // Update the gallery grid style in the galleryGrid element
+        document.getElementById('galleryGrid').style.cssText = `
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));  // Changed from 120px to 150px
+            gap: 15px;
+            margin: 0;
+            padding: 10px;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-color: #333;
+            border-radius: 4px;
+            align-content: start;
+            max-height: calc(80vh - 100px);
+        `;
     }
 
     // Add these event listeners after other event listeners
@@ -1863,15 +1887,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('deleteAllConfirmYes').addEventListener('click', () => {
         const selectedItems = document.querySelectorAll('#galleryGrid input[type="checkbox"]:checked');
-        const selectedIds = Array.from(selectedItems).map(checkbox => parseInt(checkbox.dataset.itemId));
+        const selectedIds = Array.from(selectedItems).map(checkbox => parseInt(checkbox.dataset.itemId)); // Already converting to integer
+        
+        if (selectedIds.length === 0) {
+            showNotification('No items selected');
+            return;
+        }
         
         // Get gallery items
         let galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
         
+        // Ensure all IDs are integers for comparison
+        galleryItems = galleryItems.map(item => ({
+            ...item,
+            id: Math.floor(item.id)
+        }));
+        
         // Filter out selected items
         galleryItems = galleryItems.filter(item => !selectedIds.includes(item.id));
         
-        // Save updated items
+        // Save updated gallery
         localStorage.setItem('pixelGallery', JSON.stringify(galleryItems));
         
         // Hide delete confirmation modal
@@ -1882,6 +1917,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Reload gallery
         loadGallery();
+        
+        // Reset select all button text
+        document.getElementById('selectAllBtn').textContent = 'Select All';
         
         showNotification(`${selectedIds.length} item(s) deleted from gallery`);
     });
@@ -1997,5 +2035,44 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update button text
         const selectAllBtn = document.getElementById('selectAllBtn');
         selectAllBtn.textContent = allChecked ? 'Select All' : 'Deselect All';
+    });
+
+    // Add this after other event listeners
+    document.getElementById('duplicateSelectedBtn').addEventListener('click', () => {
+        const selectedItems = document.querySelectorAll('#galleryGrid input[type="checkbox"]:checked');
+        
+        if (selectedItems.length === 0) {
+            showNotification('No items selected');
+            return;
+        }
+        
+        // Get gallery items
+        let galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
+        const selectedIds = Array.from(selectedItems).map(checkbox => parseInt(checkbox.dataset.itemId));
+        
+        // Find selected items and create duplicates
+        const itemsToDuplicate = galleryItems.filter(item => selectedIds.includes(item.id));
+        const duplicates = itemsToDuplicate.map(item => {
+            // Generate new random name using nameGenerator
+            const newName = nameGenerator.generate();
+            
+            return {
+                ...item,
+                id: Math.floor(Date.now() + Math.random() * 1000), // Ensure unique integer ID
+                name: newName,
+                timestamp: new Date().toISOString()
+            };
+        });
+        
+        // Add duplicates to gallery
+        galleryItems = [...galleryItems, ...duplicates];
+        
+        // Save updated gallery
+        localStorage.setItem('pixelGallery', JSON.stringify(galleryItems));
+        
+        // Reload gallery display
+        loadGallery();
+        
+        showNotification(`Duplicated ${duplicates.length} item(s)`);
     });
 });
