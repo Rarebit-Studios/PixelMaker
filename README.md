@@ -1,6 +1,8 @@
-# Pixel Art Editor
+# Pixel Art Editor 
 
-A powerful, web-based pixel art creation tool designed for both desktop and mobile use. Create, edit, and export pixel art with support for multiple color palettes and resolutions.
+A simple web-based pixel art creation tool designed for both desktop and mobile use. Create, edit, and export pixel art with support for multiple color palettes and exports to Makecode Arcade.
+
+I made this for some kids workshops where we needed a simple image import/export to makecode arcade
 
 ## Features
 
@@ -15,33 +17,65 @@ A powerful, web-based pixel art creation tool designed for both desktop and mobi
 - **Multiple Color Palettes**:
   - Default 16-color palette
   - MakeCode Arcade palette
-  - Endesga32 (32 colors)
-  - Nanner32 (32 colors)
+  - Steam Lords
+  - Pico-8
+  - CGA
+  - NA16
+  - GameBoy
+  - Grayscale
+  - Pastel
+  - Jehkoba 32 (32 colors)
+  - Endesga 32 (32 colors)
+  - Nanner 32 (32 colors)
 - **Custom Color Picker**: Choose any color
 - **Dual Palette Display**: Easy access to colors on both sides
 - **Smart Palette Switching**: Automatically matches existing colors to closest equivalents
 
 ### Canvas Options
-- **Adjustable Resolution**: 8x8 to 64x64 pixels
+- **Adjustable Resolution**: 8x8 to 32x32 pixels
 - **Live Preview**: Real-time miniature preview
 - **Coordinate Display**: Shows current pixel position
+
+### Gallery System
+- **Save to Gallery**: Store artwork with unique names
+- **Browse Gallery**: View all saved artwork with thumbnails
+- **Filename Display**: Shows artwork name under thumbnails
+- **Duplicate Prevention**: Prevents saving artwork with existing names
+- **Batch Operations**: 
+  - Select multiple artworks
+  - Create spritesheets from selected artwork
+  - Delete multiple artworks at once
 
 ### Import/Export
 - **Save as PNG**: Export with customizable scale
 - **Image Import**: Import and automatically resize images
 - **Clipboard Support**: Paste images directly from clipboard
 - **MakeCode Export**: Generate code for MakeCode Arcade
-- **Share Artwork**: Generate shareable URLs
+- **Share Artwork**: Generate shareable URLs that include:
+  - Pixel data
+  - Palette selection
+  - Resolution
+  - Artwork name
 
 ### Auto-Save Features
 - Automatic saving every 60 seconds
 - Save on page close
 - Restore previous work on reload
+- Persistent filenames across sessions
+
+### File Management
+- **Automatic Naming**: Generates unique names for new artwork (format: AdjectiveNoun1234)
+- **Filename Display**: Shows current artwork name in:
+  - Browser tab
+  - Top-left corner
+  - Gallery thumbnails
+- **Name Persistence**: Maintains filename when sharing artwork
 
 ### Responsive Design
 - Works on desktop and mobile devices
 - Touch-optimized interface
 - Landscape and portrait mode support
+- Tool tooltips with shortcut information
 
 ## Keyboard Shortcuts
 - `P` - Select Pen Tool
@@ -72,69 +106,65 @@ A powerful, web-based pixel art creation tool designed for both desktop and mobi
 - Transparency support
 
 ### Share URL Compression Format
-The share URL uses a compressed format to efficiently encode pixel art data:
+The share URL system uses a compressed format to efficiently encode pixel art data, making URLs shorter and more manageable.
 
 #### Data Structure
 ```javascript
 {
-    "p": [[count, colorIndex], ...], // Compressed pixel data
+    "p": [[count, colorIndex], ...], // Run-length encoded pixel data
     "l": "paletteName",             // Palette identifier
-    "r": resolution                 // Canvas resolution
+    "r": resolution                 // Canvas resolution (8-64)
 }
 ```
 
-#### Compression Method
-1. **Color Index Mapping**
-   - Each pixel color is mapped to its palette index (0-31)
-   - Transparent pixels are mapped to -1
-   - This reduces color data from 7 characters (#RRGGBB) to 1-2 digits
+#### Compression Pipeline
+1. **Color Mapping**
+   - Convert each pixel's color to its palette index (0-31)
+   - Map transparent pixels to -1
+   - Reduces color data from "#RRGGBB" (7 chars) to 1-2 digits
 
-2. **Run-Length Encoding (RLE)**
-   - Consecutive identical colors are compressed into [count, colorIndex] pairs
-   - Example: 
-     - Original: [0,0,0,0,1,1,1,-1,-1]
-     - Compressed: [[4,0], [3,1], [2,-1]]
+2. **Run-Length Encoding**
+   - Compress consecutive identical colors into [count, colorIndex] pairs
+   - Example:
+     ```javascript
+     Original:  [0,0,0,1,1,-1,-1]
+     Encoded:   [[3,0], [2,1], [2,-1]]
+     ```
 
-3. **Base64 Encoding**
-   - The final JSON is encoded in Base64 to ensure URL safety
+3. **JSON Serialization**
+   - Convert compressed data structure to JSON
 
-#### Example
+4. **Base64 Encoding**
+   - Encode JSON as Base64 for URL-safe sharing
+
+#### Decompression Pipeline
+1. **Base64 Decode** → JSON string
+2. **JSON Parse** → data structure
+3. **RLE Decode** → flat pixel array
+4. **Color Index Resolution** → RGB colors
+5. **Canvas Rendering**
+
+
+### MakeCode Export
+The MakeCode export feature generates code compatible with MakeCode Arcade's sprite system.
+
+1. Converts pixel data to MakeCode's format
+2. Generates JavaScript code block
+3. Includes:
+   - Sprite definition
+   - Transparency handling
+
+Example output:
 ```javascript
-// Original pixel data (16x16 image)
-"#FF0000,#FF0000,transparent,#00FF00..." (256 colors * 7 chars each)
-
-// Compressed format
-{
-    "p": [[2,4], [1,-1], [1,7]...],  // [count, colorIndex] pairs
-    "l": "default",                   // Palette name
-    "r": 16                          // 16x16 resolution
-}
+const mySprite = sprites.create(img`
+    . . . . . . . . 
+    . 1 1 1 1 1 . . 
+    . 1 . . . 1 . . 
+    . 1 . . . 1 . . 
+    . 1 1 1 1 1 . . 
+    . . . . . . . . 
+`, SpriteKind.Player)
 ```
-
-#### Compression Benefits
-- **Size Reduction**: 
-  - Color values: ~85% reduction (7 chars → 1-2 digits)
-  - RLE: Variable reduction (best with large same-color areas)
-  - Example: 16x16 solid color image
-    - Uncompressed: ~3,584 bytes (256 * 7 chars)
-    - Compressed: ~20 bytes [[256,4]]
-
-- **Palette Integrity**:
-  - Colors are always matched to exact palette colors
-  - Ensures consistency across shares
-
-#### Backward Compatibility
-- The system can still load older uncompressed share URLs
-- Automatically detects and handles both formats
-
-### Loading Process
-1. Decode Base64 string
-2. Parse JSON data
-3. Extract resolution and create canvas
-4. Set palette
-5. Decompress RLE data
-6. Convert color indices back to actual colors
-7. Render to canvas
 
 ## Usage Guide
 
@@ -167,29 +197,6 @@ The share URL uses a compressed format to efficiently encode pixel art data:
 3. Click Export MakeCode
 4. Copy generated code to MakeCode Arcade
 
-## Browser Compatibility
-- Chrome (recommended)
-- Firefox
-- Safari
-- Edge
-- Mobile browsers
-
-## Installation
-No installation required. Access directly through web browser at [URL].
-
-## Development
-
-### File Structure
-- `index.html` - Main HTML structure
-- `style.css` - Styling and layout
-- `pixengine.js` - Core application logic
-- `palettes.js` - Color palette definitions
-
-### Local Development
-1. Clone the repository
-2. Open index.html in a browser
-3. No build process required
-
 ## Version History
 - 1.0.5 - Current version
   - Added 32-color palette support
@@ -201,8 +208,7 @@ No installation required. Access directly through web browser at [URL].
 - 1.0.3 - Initial release
 
 ## Credits
-- Created by Reality Boffins
+- Created by Charles Gershom - Reality Boffins
 - Visit [realityboffins.com](https://realityboffins.com)
 
-## License
-[Add your license information here] 
+ 

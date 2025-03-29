@@ -1,4 +1,27 @@
-const APP_VERSION = '1.0.6'; // Match this with meta tag and title
+const APP_VERSION = '1.0.8'; // Match this with meta tag and title
+
+const nameGenerator = {
+    adjectives: [
+        "Brave", "Cosmic", "Mystic", "Pixel", "Digital", "Neon", "Retro", "Cyber", 
+        "Crystal", "Golden", "Silent", "Hidden", "Vibrant", "Ancient", "Glowing",
+        "Tiny", "Mighty", "Stellar", "Lunar", "Solar", "Electric", "Quantum", 
+        "Radiant", "Dreamy", "Magical", "Sacred", "Wild", "Secret", "Dancing"
+    ],
+    nouns: [
+        "Pixel", "Sprite", "Canvas", "Art", "Creation", "Dream", "Vision", "World",
+        "Beast", "Hero", "Legend", "Spirit", "Star", "Moon", "Sun", "Heart",
+        "Dragon", "Knight", "Wizard", "Warrior", "Sage", "Guardian", "Explorer",
+        "Wanderer", "Seeker", "Maker", "Builder", "Crafter", "Master"
+    ],
+    
+    generate() {
+        const adjective = this.adjectives[Math.floor(Math.random() * this.adjectives.length)];
+        const noun = this.nouns[Math.floor(Math.random() * this.nouns.length)];
+        // Generate random number between 1000 and 9999
+        const number = Math.floor(Math.random() * 9000) + 1000;
+        return `${adjective}${noun}${number}`;
+    }
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('dragover', (e) => {
@@ -99,17 +122,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }, duration);
     }
 
-    // Define saveToLocalStorage first
+    // Update saveToLocalStorage function to include filename
     function saveToLocalStorage() {
         try {
             const pixels = document.querySelectorAll('.pixel');
             const pixelData = Array.from(pixels).map(pixel => pixel.style.backgroundColor || 'transparent');
             const currentPaletteName = paletteSelector.value;
+            const currentFilename = document.querySelector('.filename-display').textContent;
             
-            // Save pixel data, resolution, and palette
+            // Save pixel data, resolution, palette, and filename
             localStorage.setItem('pixelArtData', JSON.stringify(pixelData));
             localStorage.setItem('pixelArtResolution', currentResolution.toString());
             localStorage.setItem('pixelArtPalette', currentPaletteName);
+            localStorage.setItem('pixelArtFilename', currentFilename);
             
             showNotification('Auto-saving...', 1000);
         } catch (error) {
@@ -674,13 +699,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return canvas;
     }
 
-    // Update save button handler
+    // Add this function to update the filename display
+    function updateFilenameDisplay(filename = 'Untitled') {
+        const filenameDisplay = document.querySelector('.filename-display');
+        if (filenameDisplay) {
+            filenameDisplay.textContent = filename;
+        }
+    }
+
+    // Update save button handler to use current filename
     saveBtn.addEventListener('click', () => {
         saveToLocalStorage();
         const canvas = saveImage(10);
         const link = document.createElement('a');
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        link.download = `pixel-art-${timestamp}.png`;
+        const currentFilename = document.querySelector('.filename-display').textContent;
+        link.download = `${currentFilename}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
     });
@@ -793,7 +826,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update the color picker button click handler
     colorPickerBtn.addEventListener('click', () => switchTool('picker'));
 
-    // Update the loadFromLocalStorage function
+    // Update the loadFromLocalStorage function to retrieve filename
     function loadFromLocalStorage() {
         try {
             // 1. Get and set the last selected resolution first, create grid
@@ -824,6 +857,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
                     
+                    // Load and set the saved filename
+                    const savedFilename = localStorage.getItem('pixelArtFilename');
+                    if (savedFilename) {
+                        const filenameDisplay = document.querySelector('.filename-display');
+                        if (filenameDisplay) {
+                            filenameDisplay.textContent = savedFilename;
+                        }
+                    } else {
+                        // If no filename saved, generate a new one
+                        const randomName = nameGenerator.generate();
+                        const filenameDisplay = document.querySelector('.filename-display');
+                        if (filenameDisplay) {
+                            filenameDisplay.textContent = randomName;
+                        }
+                    }
+                    
                     // Update the preview
                     updateMiniPreview();
                     
@@ -835,6 +884,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (error) {
                     console.error('Error parsing saved data:', error);
                     showNotification('Error loading previous work', 3000);
+                }
+            } else {
+                // No saved data, generate new filename
+                const randomName = nameGenerator.generate();
+                const filenameDisplay = document.querySelector('.filename-display');
+                if (filenameDisplay) {
+                    filenameDisplay.textContent = randomName;
                 }
             }
             
@@ -856,6 +912,12 @@ document.addEventListener('DOMContentLoaded', () => {
             showNotification('Error loading previous work', 3000);
             // Create default grid if loading fails
             createGridWithoutSave(16);
+            // Generate new filename on error
+            const randomName = nameGenerator.generate();
+            const filenameDisplay = document.querySelector('.filename-display');
+            if (filenameDisplay) {
+                filenameDisplay.textContent = randomName;
+            }
         }
     }
 
@@ -1037,10 +1099,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Mini preview tooltip
         miniPreview.title = "Artwork Preview";
         
-        // Tools tooltips
+        // Main Tools tooltips
         penBtn.title = "Pen (P) - Draw with selected color";
         eraserBtn.title = "Eraser (E) - Erase pixels";
         colorPickerBtn.title = "Color Picker (I) - Pick a color from the canvas";
+        floodFillBtn.title = "Fill Tool (F) - Fill connected areas";
         undoBtn.title = "Undo (Ctrl+Z) - Undo last action";
         redoBtn.title = "Redo (Ctrl+Y/Ctrl+Shift+Z) - Redo last undone action";
         
@@ -1049,13 +1112,30 @@ document.addEventListener('DOMContentLoaded', () => {
         paletteSelector.title = "Choose a color palette";
         
         // File operation tooltips
-        saveBtn.title = "Save - Save your artwork as PNG";
-        importBtn.title = "Import - Import an image (will be resized)";
+        saveBtn.title = "Save - Export as PNG";
+        importBtn.title = "Import - Import an image";
         clearBtn.title = "Clear - Clear the canvas";
         exportMakeCodeBtn.title = "Export MakeCode - Export for MakeCode Arcade";
         
+        // Gallery tooltips
+        document.getElementById('openGallery').title = "Open Gallery - Browse saved artwork";
+        document.getElementById('saveToGallery').title = "Save to Gallery - Save current artwork";
+        
+        // Other tools tooltips
+        document.getElementById('paste').title = "Paste - Paste image from clipboard";
+        document.getElementById('share').title = "Share - Create shareable URL";
+        document.getElementById('logoBtn').title = "Visit Reality Boffins website";
+        
+        // Resolution selector tooltip
+        document.getElementById('resolutionSelector').title = "Change canvas resolution";
+        
         // Coordinates display tooltip
         coordinatesDisplay.title = "Pixel Coordinates";
+        
+        // Gallery modal buttons
+        document.getElementById('spritesheetBtn').title = "Create spritesheet from selected artwork";
+        document.getElementById('deleteAllBtn').title = "Delete selected artwork";
+        document.getElementById('closeGalleryModal').title = "Close gallery";
     }
 
     // Call this function after DOM content is loaded
@@ -1197,6 +1277,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide the modal and overlay
         document.getElementById('modalOverlay').style.display = 'none';
         document.getElementById('clearModal').style.display = 'none';
+        
+        // Generate new random name and update filename display
+        const randomName = nameGenerator.generate();
+        const filenameDisplay = document.querySelector('.filename-display');
+        if (filenameDisplay) {
+            filenameDisplay.textContent = randomName;
+        }
+        
+        // Reset page title
+        document.title = 'Pixel Maker - Version ' + APP_VERSION;
     });
 
     // Handle the No button click
@@ -1222,6 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide modal
         document.getElementById('modalOverlay').style.display = 'none';
         resolutionModal.style.display = 'none';
+        resetPageTitle();
     });
 
     document.getElementById('resolutionNo').addEventListener('click', () => {
@@ -1410,11 +1501,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return closestIndex;
     }
 
-    // Update shareArtwork to use indices
+    // Update shareArtwork function to include filename
     function shareArtwork() {
         const pixelData = getPixelData();
         const currentPalette = document.getElementById('paletteSelector').value;
         const palette = palettes[currentPalette];
+        const currentFilename = document.querySelector('.filename-display').textContent;
         
         // Convert colors to palette indices
         const indexData = pixelData.map(color => getColorIndex(color, palette));
@@ -1437,11 +1529,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // Create the compressed data string
+        // Create the compressed data string with filename
         const artworkData = btoa(JSON.stringify({
             p: compressed,         // compressed pixel indices
             l: currentPalette,    // palette name
-            r: currentResolution  // resolution
+            r: currentResolution, // resolution
+            f: currentFilename   // filename
         }));
         
         const shareUrl = `${window.location.origin}${window.location.pathname}?art=${artworkData}`;
@@ -1465,7 +1558,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     }
 
-    // Update load handler to decode indices
+    // Update window load handler to handle filename in shared URL
     window.addEventListener('load', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const artData = urlParams.get('art');
@@ -1488,6 +1581,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentPalette = palettes[paletteName];
                 updateColorSwatches();
                 
+                // Set filename (if exists in shared data, otherwise generate new)
+                const sharedFilename = decodedData.f;
+                const filenameDisplay = document.querySelector('.filename-display');
+                if (filenameDisplay) {
+                    filenameDisplay.textContent = sharedFilename || nameGenerator.generate();
+                }
+                
                 // Decompress and convert indices back to colors
                 const compressed = decodedData.p;
                 let pixels = [];
@@ -1500,9 +1600,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadPixelData(pixels);
                 showNotification('Shared artwork loaded!', 2000);
                 
+                // Save the loaded state
+                saveToLocalStorage();
+                
             } catch (error) {
                 console.error('Failed to load shared artwork:', error);
                 showNotification('Failed to load shared artwork', 3000);
+                
+                // Generate new filename on error
+                const randomName = nameGenerator.generate();
+                const filenameDisplay = document.querySelector('.filename-display');
+                if (filenameDisplay) {
+                    filenameDisplay.textContent = randomName;
+                }
             }
         }
     });
@@ -1519,21 +1629,33 @@ document.addEventListener('DOMContentLoaded', () => {
         hideModal('shareModal');
     });
 
-    // Add these functions after other function declarations
+    // Update saveToGallery function to check for duplicates
     function saveToGallery() {
         const canvas = saveImage(10);
         const timestamp = new Date().toISOString();
+        const currentFilename = document.querySelector('.filename-display').textContent;
+        
+        // Get existing gallery items
+        let galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
+        
+        // Check if name already exists
+        const nameExists = galleryItems.some(item => item.name === currentFilename);
+        
+        if (nameExists) {
+            showNotification(`"${currentFilename}" already exists in gallery`, 3000);
+            return; // Exit without saving
+        }
+        
+        // If name doesn't exist, proceed with saving
         const galleryItem = {
             id: Date.now(),
+            name: currentFilename,
             timestamp: timestamp,
             imageData: canvas.toDataURL('image/png'),
             resolution: currentResolution,
             palette: paletteSelector.value,
             pixels: getPixelData()
         };
-
-        // Get existing gallery items
-        let galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
         
         // Add new item
         galleryItems.push(galleryItem);
@@ -1541,12 +1663,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Save back to localStorage
         localStorage.setItem('pixelGallery', JSON.stringify(galleryItems));
         
-        showNotification('Artwork saved to gallery!');
+        showNotification(`Saved as "${currentFilename}"`);
     }
 
     function loadGallery() {
         const galleryModal = document.getElementById('galleryModal');
         const galleryGrid = document.getElementById('galleryGrid');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        
+        // Reset select all button text
+        selectAllBtn.textContent = 'Select All';
         
         // Clear existing items
         galleryGrid.innerHTML = '';
@@ -1562,14 +1688,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 const galleryItem = document.createElement('div');
                 galleryItem.style.cssText = `
                     position: relative;
-                    aspect-ratio: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 5px;
+                    padding-bottom: 5px;
                     border: 2px solid #444;
                     border-radius: 4px;
                     overflow: hidden;
                     cursor: pointer;
                     background-color: #222;
                     transition: transform 0.2s, border-color 0.2s;
-                    height: 120px;
+                `;
+                
+                // Create thumbnail container
+                const thumbnailContainer = document.createElement('div');
+                thumbnailContainer.style.cssText = `
+                    width: 100%;
+                    aspect-ratio: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: #222;
                 `;
                 
                 // Create thumbnail
@@ -1579,8 +1719,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     width: 100%;
                     height: 100%;
                     object-fit: contain;
-                    background-color: #222;
                     image-rendering: pixelated;
+                `;
+                
+                // Create filename label
+                const filenameLabel = document.createElement('div');
+                filenameLabel.textContent = item.name || 'Untitled';
+                filenameLabel.style.cssText = `
+                    color: #fff;
+                    font-size: 0.8rem;
+                    text-align: center;
+                    padding: 0 5px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    width: 100%;
+                    box-sizing: border-box;
                 `;
                 
                 // Create checkbox with updated styling
@@ -1599,7 +1753,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     accent-color: #ff4444;
                 `;
                 
-                // Remove the opacity transitions from hover events
+                // Add hover effects
                 galleryItem.addEventListener('mouseenter', () => {
                     galleryItem.style.transform = 'scale(1.02)';
                     galleryItem.style.borderColor = '#18b2e0';
@@ -1608,11 +1762,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 galleryItem.addEventListener('mouseleave', () => {
                     galleryItem.style.transform = 'scale(1)';
                     galleryItem.style.borderColor = '#444';
-                });
-                
-                // Remove the checkbox visibility toggle
-                checkbox.addEventListener('change', () => {
-                    // Keep any other checkbox change handling if needed
                 });
                 
                 // Handle click to load artwork
@@ -1631,6 +1780,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Load pixels
                         loadPixelData(item.pixels);
                         
+                        // Set filename
+                        const filenameDisplay = document.querySelector('.filename-display');
+                        if (filenameDisplay) {
+                            filenameDisplay.textContent = item.name;
+                        }
+                        
                         // Hide modal
                         hideModal('galleryModal');
                         
@@ -1641,7 +1796,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 
-                galleryItem.appendChild(thumbnail);
+                thumbnailContainer.appendChild(thumbnail);
+                galleryItem.appendChild(thumbnailContainer);
+                galleryItem.appendChild(filenameLabel);
                 galleryItem.appendChild(checkbox);
                 galleryGrid.appendChild(galleryItem);
             });
@@ -1804,12 +1961,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // When all images are loaded, download the spritesheet
                 if (loadedImages === numItems) {
                     const link = document.createElement('a');
-                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                    link.download = `spritesheet-${timestamp}.png`;
+                    const currentFilename = document.querySelector('.filename-display').textContent;
+                    link.download = `${currentFilename}-spritesheet.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
-                    
-                    showNotification('Spritesheet created!');
+                    showNotification(`Spritesheet saved as "${currentFilename}"`);
                 }
             };
             img.src = item.imageData;
@@ -1818,4 +1974,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add event listener for the spritesheet button
     document.getElementById('spritesheetBtn').addEventListener('click', createSpritesheet);
+
+    // Only update filename in these specific cases
+    function resetPageTitle() {
+        document.title = 'Pixel Maker - Version ' + APP_VERSION;
+        const filenameDisplay = document.querySelector('.filename-display');
+        if (filenameDisplay) {
+            filenameDisplay.textContent = 'Untitled';
+        }
+    }
+
+    // Add select all functionality
+    document.getElementById('selectAllBtn').addEventListener('click', () => {
+        const checkboxes = document.querySelectorAll('#galleryGrid input[type="checkbox"]');
+        const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        
+        // If all are checked, uncheck all. Otherwise, check all
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allChecked;
+        });
+        
+        // Update button text
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        selectAllBtn.textContent = allChecked ? 'Select All' : 'Deselect All';
+    });
 });

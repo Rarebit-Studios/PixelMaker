@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- Add version meta tag -->
-    <meta name="app-version" content="1.0.6">
+    <meta name="app-version" content="1.0.8">
     <!-- Add no-cache meta tags -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Pixel Maker - Version 1.0.6</title>
+    <title>Pixel Maker - Version 1.0.8</title>
     <link rel="stylesheet" href="style.css">
     
     <!-- PWA meta tags -->
@@ -79,7 +79,8 @@
     </script>
 </head>
 <body>
-    <div class="version-display">v1.0.6</div>
+    <div class="version-display">v1.0.8</div>
+    <div class="filename-display">Untitled</div>
     <div class="container">
         <div class="editor-container">
 
@@ -237,6 +238,9 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0;">
             <h3 style="margin: 0; color: #fff;">Gallery</h3>
             <div style="display: flex; gap: 10px;">
+                <button id="selectAllBtn" 
+                    style="background-color: #18b2e0; color: white; border: none; padding: 8px 16px; 
+                    border-radius: 4px; cursor: pointer; min-width: 220px; white-space: nowrap;">Select All</button>
                 <button id="spritesheetBtn" 
                     style="background-color: #18b2e0; color: white; border: none; padding: 8px 16px; 
                     border-radius: 4px; cursor: pointer; min-width: 220px; white-space: nowrap;">Download Spritesheet</button>

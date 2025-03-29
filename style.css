@@ -589,6 +589,17 @@ button,
     font-family: 'Roboto', sans-serif;
 }
 
+.filename-display {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.7rem;
+    z-index: 100;
+    pointer-events: none;
+    font-family: 'Roboto', sans-serif;
+}
+
 /* Add specific styling for palette pairs */
 .left-palette2,
 .right-palette2 {
