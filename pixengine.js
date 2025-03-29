@@ -688,14 +688,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.sqrt(r + g + b);
     }
 
-    function saveImage(scale = 10) {
+    function saveImage(scale = 10, format = 'png') {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = currentResolution * scale;
         canvas.height = currentResolution * scale;
 
-        // Make canvas transparent
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Make canvas transparent for PNG, white for other formats
+        if (format === 'png') {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        } else {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
 
         // Draw pixels to canvas
         const pixels = document.querySelectorAll('.pixel');
@@ -711,6 +716,43 @@ document.addEventListener('DOMContentLoaded', () => {
         return canvas;
     }
 
+    // Function to download image
+    function downloadImage(canvas, format) {
+        const currentFilename = document.querySelector('.filename-display').textContent;
+        const link = document.createElement('a');
+        link.download = `${currentFilename}.${format}`;
+        
+        // Handle different formats
+        if (format === 'jpg' || format === 'jpeg') {
+            link.href = canvas.toDataURL('image/jpeg', 0.9);
+        } else if (format === 'webp') {
+            link.href = canvas.toDataURL('image/webp', 0.9);
+        } else if (format === 'gif') {
+            link.href = canvas.toDataURL('image/gif');
+        } else if (format === 'bmp') {
+            link.href = canvas.toDataURL('image/bmp');
+        } else {
+            link.href = canvas.toDataURL('image/png');
+        }
+        
+        link.click();
+        
+        // Hide modal after download
+        document.getElementById('modalOverlay').style.display = 'none';
+        document.getElementById('saveModal').style.display = 'none';
+    }
+
+    // Add click handlers for each format button
+    document.getElementById('savePNG').addEventListener('click', () => {
+        const canvas = saveImage(10, 'png');
+        downloadImage(canvas, 'png');
+    });
+
+    document.getElementById('saveJPG').addEventListener('click', () => {
+        const canvas = saveImage(10, 'jpg');
+        downloadImage(canvas, 'jpg');
+    });
+
     // Add this function to update the filename display
     function updateFilenameDisplay(filename = 'Untitled') {
         const filenameDisplay = document.querySelector('.filename-display');
@@ -721,13 +763,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update save button handler to use current filename
     saveBtn.addEventListener('click', () => {
-        saveToLocalStorage();
-        const canvas = saveImage(10);
-        const link = document.createElement('a');
-        const currentFilename = document.querySelector('.filename-display').textContent;
-        link.download = `${currentFilename}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        document.getElementById('modalOverlay').style.display = 'block';
+        document.getElementById('saveModal').style.display = 'block';
     });
 
     function getPixelGridData() {
@@ -1433,7 +1470,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'copyModal', 
             'galleryModal',
             'deleteConfirmModal',
-            'deleteAllConfirmModal'
+            'deleteAllConfirmModal',
+            'saveModal'  // Add saveModal to the list
         ];
         modals.forEach(id => {
             const element = document.getElementById(id);
@@ -1961,7 +1999,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'copyModal', 
             'galleryModal',
             'deleteConfirmModal',
-            'deleteAllConfirmModal'
+            'deleteAllConfirmModal',
+            'saveModal'  // Add saveModal to the list
         ];
         modals.forEach(id => {
             const element = document.getElementById(id);
@@ -2097,5 +2136,119 @@ document.addEventListener('DOMContentLoaded', () => {
         loadGallery();
         
         showNotification(`Duplicated ${duplicates.length} item(s)`);
+    });
+
+    // Add close handler for save modal
+    document.getElementById('closeSaveModal').addEventListener('click', () => {
+        hideModals(); // Use the existing hideModals function
+    });
+
+    // Function to convert image to 1-bit monochrome format
+    function convertTo1Bit(canvas) {
+        const ctx = canvas.getContext('2d');
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        const bytes = [];
+        
+        for (let i = 0; i < data.length; i += 4) {
+            // Calculate brightness (simple average)
+            const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            // Use threshold of 128 for binary decision
+            bytes.push(brightness >= 128 ? 1 : 0);
+        }
+        
+        return bytes;
+    }
+
+    // Function to generate Arduino code
+    function generateArduinoCode(bytes, width, height) {
+        const currentFilename = document.querySelector('.filename-display').textContent;
+        const variableName = currentFilename.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+        
+        let code = `// Generated by Pixel Maker\n`;
+        code += `const uint8_t ${variableName}[] PROGMEM = {\n`;
+        code += `  ${width}, ${height},  // Width, Height\n  `;
+        
+        // Convert bits to bytes
+        for (let i = 0; i < bytes.length; i += 8) {
+            let byte = 0;
+            for (let j = 0; j < 8; j++) {
+                if (i + j < bytes.length) {
+                    byte |= (bytes[i + j] << (7 - j));
+                }
+            }
+            code += `0x${byte.toString(16).padStart(2, '0')}, `;
+            if ((i + 8) % 64 === 0) code += '\n  ';
+        }
+        
+        code += '\n};';
+        return code;
+    }
+
+    // Function to generate Adafruit GFX format
+    function generateAdafruitGFX(bytes, width, height) {
+        const currentFilename = document.querySelector('.filename-display').textContent;
+        const variableName = currentFilename.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+        
+        let code = `// Generated by Pixel Maker for Adafruit GFX\n`;
+        code += `static const uint8_t ${variableName}Bitmaps[] PROGMEM = {\n`;
+        code += generateArduinoCode(bytes, width, height);
+        code += `\n\nstatic const GFXbitmapFont ${variableName} = {\n`;
+        code += `  ${variableName}Bitmaps,\n`;
+        code += `  ${width}, ${height},  // Width, Height\n`;
+        code += `  1  // Bytes per column\n};`;
+        return code;
+    }
+
+    // Add click handlers for new export formats
+    document.getElementById('saveArduino').addEventListener('click', () => {
+        const canvas = saveImage(1); // Use 1:1 scale for embedded formats
+        const bytes = convertTo1Bit(canvas);
+        const code = generateArduinoCode(bytes, currentResolution, currentResolution);
+        
+        // Create and trigger download
+        const blob = new Blob([code], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${document.querySelector('.filename-display').textContent}.ino`;
+        link.click();
+        hideModals();
+    });
+
+    document.getElementById('saveAdafruit').addEventListener('click', () => {
+        const canvas = saveImage(1);
+        const bytes = convertTo1Bit(canvas);
+        const code = generateAdafruitGFX(bytes, currentResolution, currentResolution);
+        
+        const blob = new Blob([code], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${document.querySelector('.filename-display').textContent}_gfx.h`;
+        link.click();
+        hideModals();
+    });
+
+    document.getElementById('saveBinary').addEventListener('click', () => {
+        const canvas = saveImage(1);
+        const bytes = convertTo1Bit(canvas);
+        
+        // Convert to binary format
+        const buffer = new Uint8Array(Math.ceil(bytes.length / 8));
+        for (let i = 0; i < bytes.length; i += 8) {
+            let byte = 0;
+            for (let j = 0; j < 8; j++) {
+                if (i + j < bytes.length) {
+                    byte |= (bytes[i + j] << (7 - j));
+                }
+            }
+            buffer[i / 8] = byte;
+        }
+        
+        const blob = new Blob([buffer], { type: 'application/octet-stream' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${document.querySelector('.filename-display').textContent}.bin`;
+        link.click();
+        hideModals();
     });
 });

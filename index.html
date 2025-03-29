@@ -297,6 +297,32 @@
         </div>
     </div>
 
+    <!-- Update Save Options Modal -->
+    <div id="saveModal" class="modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+        background-color: #2a2a2a; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); z-index: 1000;
+        text-align: center; min-width: 300px;">
+        
+        <!-- Close button as X -->
+        <button id="closeSaveModal" class="modal-close" 
+            style="position: absolute; top: 0; right: 0; background-color: #ff4444; 
+            color: white; border: none; width: 32px; height: 32px; border-radius: 0 8px 0 8px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: bold; padding: 0; margin: 0;">×</button>
+
+        <h3 style="color: white; margin-bottom: 15px;">Image Formats</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin: 10px;">
+            <button id="savePNG" class="save-button">Save as PNG</button>
+            <button id="saveJPG" class="save-button">Save as JPG</button>
+        </div>
+
+        <h3 style="color: white; margin: 20px 0 15px;">Embedded Formats</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin: 10px;">
+            <button id="saveArduino" class="save-button">Arduino Code (1-bit)</button>
+            <button id="saveAdafruit" class="save-button">Adafruit GFX Format</button>
+            <button id="saveBinary" class="save-button">Raw Binary (.bin)</button>
+        </div>
+    </div>
+
     <script src="palettes.js"></script>
     <script src="pixengine.js"></script>
 </body>

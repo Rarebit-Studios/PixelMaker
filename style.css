@@ -615,3 +615,19 @@ button,
     height: min(70vh, 70vw);
 }
 
+.save-button {
+    background-color: #18b2e0;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 200px;
+    margin: 0 auto;
+    transition: background-color 0.2s;
+}
+
+.save-button:hover {
+    background-color: #1590b5;
+}
+
