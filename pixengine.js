@@ -1656,17 +1656,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Get existing gallery items
         let galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
         
-        // Check if name already exists
-        const nameExists = galleryItems.some(item => item.name === currentFilename);
+        // Find existing item with same name
+        const existingIndex = galleryItems.findIndex(item => item.name === currentFilename);
         
-        if (nameExists) {
-            showNotification(`"${currentFilename}" already exists in gallery`, 3000);
-            return;
-        }
-        
-        // Create new gallery item with integer ID
+        // Create new gallery item
         const galleryItem = {
-            id: Math.floor(Date.now()), // Remove decimals to ensure integer
+            id: existingIndex >= 0 ? galleryItems[existingIndex].id : Math.floor(Date.now()), // Keep existing ID if overwriting
             name: currentFilename,
             timestamp: timestamp,
             imageData: canvas.toDataURL('image/png'),
@@ -1675,13 +1670,23 @@ document.addEventListener('DOMContentLoaded', () => {
             pixels: getPixelData()
         };
         
-        // Add new item
-        galleryItems.push(galleryItem);
+        if (existingIndex >= 0) {
+            // Overwrite existing item
+            galleryItems[existingIndex] = galleryItem;
+            showNotification(`Updated "${currentFilename}" in gallery`);
+        } else {
+            // Add new item
+            galleryItems.push(galleryItem);
+            showNotification(`Saved "${currentFilename}" to gallery`);
+        }
         
         // Save back to localStorage
         localStorage.setItem('pixelGallery', JSON.stringify(galleryItems));
         
-        showNotification(`Saved as "${currentFilename}"`);
+        // Reload gallery if it's open
+        if (document.getElementById('galleryModal').style.display === 'flex') {
+            loadGallery();
+        }
     }
 
     function loadGallery() {
