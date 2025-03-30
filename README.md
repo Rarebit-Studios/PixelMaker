@@ -7,6 +7,10 @@ Its expanded a bit to cover favicon making and images for embedded platforms suc
 
 Palettes from https://lospec.com/palette-list ... Your Awesome
 
+
+You can use it here: 
+[https://pixel.realityboffins.com](https://pixel.realityboffins.com)
+
 ## Features
 
 ### Drawing Tools

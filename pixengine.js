@@ -1173,7 +1173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Other tools tooltips
         document.getElementById('paste').title = "Paste - Paste image from clipboard";
         document.getElementById('share').title = "Share - Create shareable URL";
-        document.getElementById('logoBtn').title = "Visit Reality Boffins website";
+        document.getElementById('logoBtn').title = "Visit Github Repository";
         
         // Resolution selector tooltip
         document.getElementById('resolutionSelector').title = "Change canvas resolution";
@@ -1194,7 +1194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoBtn = document.getElementById('logoBtn');
     if (logoBtn) {
         logoBtn.addEventListener('click', () => {
-            window.open('https://realityboffins.com', '_blank', 'noopener,noreferrer');
+            window.open('https://github.com/Reality-Boffins/PixelMaker/', '_blank', 'noopener,noreferrer');
         });
     }
 
