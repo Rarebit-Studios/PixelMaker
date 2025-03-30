@@ -198,16 +198,28 @@ const mySprite = sprites.create(img`
 4. Copy generated code to MakeCode Arcade
 
 ## Version History
-- 1.0.8 - Current version
+
+- 1.1.0 - Current version
+  - Added ICO file export support
+  - Fixed icon export functionality
+  - Improved file format handling
+
+- 1.0.9 - Previous version
+  - Added drag prevention on all buttons and images
+  - Added export options for embedded displays (Arduino, Adafruit GFX, Raw Binary)
+  - Improved save modal with multiple format options
+  - Enhanced user interface consistency
+
+- 1.0.8 - Previous version
   - Added automatic artwork naming system (AdjectiveNoun1234)
   - Added filename display in browser tab and interface
-  - Added gallery system with thumbnail previews
   - Added spritesheet creation from multiple artworks
   - Added tooltips for all tools with shortcut information
   - Added duplicate name prevention in gallery
   - Improved sharing to include artwork names
-  
+
 - 1.0.7 - Previous version
+  - Added gallery system with thumbnail previews
   - Added gallery batch operations (select all, delete multiple)
   - Added persistent filenames across sessions
   - Added filename display under gallery thumbnails

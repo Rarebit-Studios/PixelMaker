@@ -1,4 +1,4 @@
-const APP_VERSION = '1.0.8'; // Match this with meta tag and title
+const APP_VERSION = '1.1.0'; // Match this with meta tag and title
 
 const nameGenerator = {
     adjectives: [
@@ -696,7 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Make canvas transparent for PNG, white for other formats
         if (format === 'png') {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         } else {
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -732,7 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (format === 'bmp') {
             link.href = canvas.toDataURL('image/bmp');
         } else {
-            link.href = canvas.toDataURL('image/png');
+        link.href = canvas.toDataURL('image/png');
         }
         
         link.click();
@@ -1707,14 +1707,14 @@ document.addEventListener('DOMContentLoaded', () => {
             palette: paletteSelector.value,
             pixels: getPixelData()
         };
-        
+
         if (existingIndex >= 0) {
             // Overwrite existing item
             galleryItems[existingIndex] = galleryItem;
             showNotification(`Updated "${currentFilename}" in gallery`);
         } else {
-            // Add new item
-            galleryItems.push(galleryItem);
+        // Add new item
+        galleryItems.push(galleryItem);
             showNotification(`Saved "${currentFilename}" to gallery`);
         }
         
@@ -2228,6 +2228,27 @@ document.addEventListener('DOMContentLoaded', () => {
         hideModals();
     });
 
+    // Add click handler for ICO export (also inside DOMContentLoaded)
+    document.getElementById('saveICO').addEventListener('click', () => {
+        // Create canvas at 32x32 resolution
+        const canvas = saveImage(1); 
+        
+        // Convert to ICO format using existing function
+        const icoData = canvasToICO(canvas);
+        
+        // Create and trigger download
+        const blob = new Blob([icoData], { type: 'image/x-icon' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        const currentFilename = document.querySelector('.filename-display').textContent;
+        link.download = `${currentFilename}.ico`;
+        link.click();
+        
+        // Hide modal after download
+        hideModals();
+    });
+
+
     document.getElementById('saveBinary').addEventListener('click', () => {
         const canvas = saveImage(1);
         const bytes = convertTo1Bit(canvas);
@@ -2251,4 +2272,104 @@ document.addEventListener('DOMContentLoaded', () => {
         link.click();
         hideModals();
     });
+
+    // Add this function to your DOMContentLoaded event listener
+    function disableDragging() {
+        // Disable dragging on all buttons
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.setAttribute('draggable', 'false');
+            
+            // Also disable dragging on button contents (like images)
+            const images = button.getElementsByTagName('img');
+            Array.from(images).forEach(img => {
+                img.setAttribute('draggable', 'false');
+            });
+        });
+    }
+
+    // Call this function when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        // ... existing DOMContentLoaded code ...
+        disableDragging();
+    });
+
+    // Also add this CSS to prevent any default drag behaviors
 });
+
+// Add this function to convert canvas to ICO format
+function canvasToICO(canvas) {
+    // ICO header (6 bytes)
+    const header = new Uint8Array([
+        0, 0,             // Reserved (0)
+        1, 0,             // Image type (1 = ICO)
+        1, 0              // Number of images (1)
+    ]);
+
+    // ICO directory entry (16 bytes)
+    const size = canvas.width;
+    const directory = new Uint8Array([
+        size,            // Width
+        size,            // Height
+        0,               // Color palette size (0 = no palette)
+        0,               // Reserved (0)
+        1, 0,            // Color planes (1)
+        32, 0,           // Bits per pixel (32)
+        // Image size (will be filled later)
+        0, 0, 0, 0,
+        // Image offset (22 = header + directory size)
+        22, 0, 0, 0
+    ]);
+
+    // Get image data
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, size, size);
+    const pixels = imageData.data;
+
+    // Create BITMAPINFOHEADER (40 bytes)
+    const infoHeader = new Uint8Array([
+        40, 0, 0, 0,     // Header size (40 bytes)
+        size, 0, 0, 0,   // Width
+        size * 2, 0, 0, 0, // Height (*2 because ICO format needs height doubled)
+        1, 0,            // Planes (1)
+        32, 0,           // Bits per pixel (32)
+        0, 0, 0, 0,      // Compression (0 = none)
+        0, 0, 0, 0,      // Image size (0 for uncompressed)
+        0, 0, 0, 0,      // X pixels per meter (unused)
+        0, 0, 0, 0,      // Y pixels per meter (unused)
+        0, 0, 0, 0,      // Colors in color table (0 = none)
+        0, 0, 0, 0       // Important color count (0 = all)
+    ]);
+
+    // Create pixel data array (BGRA format)
+    const pixelData = new Uint8Array(size * size * 4);
+    for (let i = 0; i < pixels.length; i += 4) {
+        const pos = i;
+        pixelData[pos] = pixels[i + 2];     // Blue
+        pixelData[pos + 1] = pixels[i + 1];  // Green
+        pixelData[pos + 2] = pixels[i];      // Red
+        pixelData[pos + 3] = pixels[i + 3];  // Alpha
+    }
+
+    // Combine all parts
+    const totalSize = header.length + directory.length + infoHeader.length + pixelData.length;
+    const ico = new Uint8Array(totalSize);
+    
+    // Update image size in directory
+    const imageSize = infoHeader.length + pixelData.length;
+    directory[8] = imageSize & 0xFF;
+    directory[9] = (imageSize >> 8) & 0xFF;
+    directory[10] = (imageSize >> 16) & 0xFF;
+    directory[11] = (imageSize >> 24) & 0xFF;
+
+    // Combine all parts
+    ico.set(header, 0);
+    ico.set(directory, header.length);
+    ico.set(infoHeader, header.length + directory.length);
+    ico.set(pixelData, header.length + directory.length + infoHeader.length);
+
+    return ico;
+}
+
+
+

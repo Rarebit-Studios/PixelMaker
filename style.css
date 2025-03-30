@@ -631,3 +631,15 @@ button,
     background-color: #1590b5;
 }
 
+button, button * {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+}
+
+img {
+    pointer-events: none;
+}
+
