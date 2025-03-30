@@ -2,7 +2,10 @@
 
 A simple web-based pixel art creation tool designed for both desktop and mobile use. Create, edit, and export pixel art with support for multiple color palettes and exports to Makecode Arcade.
 
-I made this for some kids workshops where we needed a simple image import/export to makecode arcade
+I threw de this for some kids workshops where we needed a simple image import/export to makecode arcade.
+Its expanded a bit to cover favicon making and images for embedded platforms such are arduino 
+
+Palettes from https://lospec.com/palette-list ... Your Awesome
 
 ## Features
 
@@ -246,4 +249,3 @@ const mySprite = sprites.create(img`
 - Created by Charles Gershom - Reality Boffins
 - Visit [realityboffins.com](https://realityboffins.com)
 
- 
