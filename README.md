@@ -1,9 +1,11 @@
 # Pixel Art Editor 
 
-A simple web-based pixel art creation tool designed for both desktop and mobile use. Create, edit, and export pixel art with support for multiple color palettes and exports to Makecode Arcade.
+A simple web-based pixel art tool. Create, edit, and export pixel art with support for multiple color palettes and exports to Makecode Arcade.
 
 I threw this together for some kids workshops where we needed a simple image import/export to makecode arcade.
 Its expanded a bit to cover favicon making and images for embedded platforms such are arduino. I'm pretty rough as javascript and web stuff, there will be gremlins. 
+
+It's tools are deliberately limited to enforce the idea of constraint. 
 
 Palettes from https://lospec.com/palette-list ... Your Awesome
 
