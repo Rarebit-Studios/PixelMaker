@@ -1593,11 +1593,22 @@ document.addEventListener('DOMContentLoaded', () => {
             f: currentFilename   // filename
         }));
         
-        const shareUrl = `${window.location.origin}${window.location.pathname}?art=${artworkData}`;
+        // Use electron dialog to save file
+        const { dialog } = require('electron').remote;
+        const fs = require('fs');
         
-        document.getElementById('modalOverlay').style.display = 'block';
-        document.getElementById('shareModal').style.display = 'block';
-        document.getElementById('shareUrl').value = shareUrl;
+        dialog.showSaveDialog({
+            title: 'Save Shared Artwork',
+            defaultPath: `${currentFilename}.pxm`,
+            filters: [
+                { name: 'Pixel Maker File', extensions: ['pxm'] }
+            ]
+        }).then(result => {
+            if (!result.canceled) {
+                fs.writeFileSync(result.filePath, artworkData);
+                showNotification('Artwork saved for sharing');
+            }
+        });
     }
 
     function copyShareUrl() {
