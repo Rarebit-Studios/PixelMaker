@@ -208,7 +208,14 @@ const mySprite = sprites.create(img`
 
 ## Version History
 
-- 1.1.0 - Current version
+- 1.2.2 - Current Version
+  - Fixed Ico export
+  - Fixed Gallery Size
+  - Fixed Tooltips
+  - Added 64x64 and 128x128 sizes
+  - Fixed Some general bugs
+
+- 1.1.0
   - Added ICO file export support
   - Fixed icon export functionality
   - Improved file format handling
