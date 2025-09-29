@@ -1,0 +1,308 @@
+{
+  "en": {
+    "app": {
+      "title": "Pixel Maker - Version 1.3.0",
+      "description": "A simple pixel art editor for creating pixel art (with makecode export)",
+      "version": "v1.3.0",
+      "untitled": "Untitled",
+      "made_in_wales": "Made in Wales"
+    },
+    "tools": {
+      "pen": "Pen",
+      "pen_tooltip": "Pen (P) - Draw with selected color",
+      "eraser": "Eraser", 
+      "eraser_tooltip": "Eraser (E) - Erase pixels",
+      "fill": "Fill",
+      "fill_tooltip": "Fill Tool (F) - Fill connected areas",
+      "color_picker": "Clear",
+      "color_picker_tooltip": "Color Picker (I) - Pick a color from the canvas",
+      "undo": "Undo",
+      "undo_tooltip": "Undo (Ctrl+Z) - Undo last action",
+      "redo": "Redo",
+      "redo_tooltip": "Redo (Ctrl+Y/Ctrl+Shift+Z) - Redo last undone action",
+      "paste": "Paste",
+      "paste_tooltip": "Paste - Paste image from clipboard",
+      "clear": "Clear",
+      "clear_tooltip": "Clear - Clear the canvas",
+      "save": "Save",
+      "save_tooltip": "Save - Export as PNG",
+      "import": "Import",
+      "import_tooltip": "Import - Import an image",
+      "share": "Share",
+      "share_tooltip": "Share - Create shareable URL",
+      "export_makecode": "Export MakeCode",
+      "export_makecode_tooltip": "Export MakeCode - Export for MakeCode Arcade",
+      "github": "Reality Boffins - Visit our website",
+      "github_tooltip": "Visit Github Repository"
+    },
+    "palettes": {
+      "default": "Default",
+      "makecode": "MakeCode",
+      "steamlords": "Steam Lords",
+      "pico8": "Pico-8",
+      "cga": "CGA",
+      "na16": "NA16",
+      "gameboy": "GameBoy",
+      "grayscale": "Grayscale",
+      "pastel": "Pastel",
+      "jehkoba32": "Jehkoba 32",
+      "endesga32": "Endesga 32",
+      "nanner32": "Nanner 32"
+    },
+    "resolutions": {
+      "8x8": "8x8",
+      "16x16": "16x16",
+      "32x32": "32x32",
+      "64x64": "64x64",
+      "128x128": "128x128"
+    },
+    "gallery": {
+      "open": "Open Gallery",
+      "open_tooltip": "Open Gallery - Browse saved artwork",
+      "save": "Save to Gallery",
+      "save_tooltip": "Save to Gallery - Save current artwork",
+      "select_all": "Select All",
+      "deselect_all": "Deselect All",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "delete_tooltip": "Delete selected artwork",
+      "close": "Close",
+      "close_tooltip": "Close gallery",
+      "no_artwork": "No saved artwork yet"
+    },
+    "modals": {
+      "clear_canvas": {
+        "title": "Clear Canvas",
+        "message": "Are you sure you want to clear the canvas? This action can be undone.",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "change_resolution": {
+        "title": "Change Resolution",
+        "message": "Changing resolution will clear your current artwork. Continue?",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "makecode_export": {
+        "title": "MakeCode Export",
+        "message": "Sprite data copied to clipboard!",
+        "instruction": "You can now paste it into your MakeCode project."
+      },
+      "share_artwork": {
+        "title": "Share Your Artwork",
+        "copy": "Copy",
+        "close": "Close"
+      },
+      "delete_artwork": {
+        "title": "Delete Artwork",
+        "message": "Are you sure you want to delete this artwork?",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "delete_selected": {
+        "title": "Delete Selected Artwork",
+        "message": "Are you sure you want to delete the selected artwork? This cannot be undone.",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "save_options": {
+        "image_formats": "Image Formats",
+        "save_png": "Save as PNG",
+        "save_jpg": "Save as JPG",
+        "save_ico": "Save as ICO",
+        "embedded_formats": "Embedded Formats",
+        "arduino_1bit": "Arduino 1-bit",
+        "adafruit_gfx": "Adafruit GFX",
+        "raw_binary": "Raw Binary"
+      }
+    },
+    "notifications": {
+      "auto_saving": "Auto-saving...",
+      "error_saving": "Error saving work",
+      "previous_work_loaded": "Previous work loaded!",
+      "error_loading": "Error loading previous work",
+      "palette_changed": "Palette changed to {palette}",
+      "resolution_changed": "Resolution changed to {resolution}x{resolution}",
+      "image_imported": "Image imported!",
+      "undo": "Undo",
+      "redo": "Redo",
+      "inverted_image": "Inverted image",
+      "please_switch_palette": "Please switch to MakeCode palette first",
+      "failed_copy": "Failed to copy to clipboard",
+      "no_image_clipboard": "No image found in clipboard",
+      "unable_paste": "Unable to paste image. Try importing instead.",
+      "shared_artwork_loaded": "Shared artwork loaded!",
+      "failed_load_shared": "Failed to load shared artwork",
+      "artwork_loaded_gallery": "Artwork loaded from gallery",
+      "artwork_saved_gallery": "Saved \"{filename}\" to gallery",
+      "artwork_updated_gallery": "Updated \"{filename}\" in gallery",
+      "artwork_deleted_gallery": "Artwork deleted from gallery",
+      "no_items_selected": "No items selected",
+      "items_deleted": "{count} item(s) deleted from gallery",
+      "items_duplicated": "Duplicated {count} item(s)",
+      "please_drop_image": "Please drop an image file",
+      "switched_to_english": "Switched to English",
+      "switched_to_welsh": "Switched to Welsh"
+    },
+    "ui": {
+      "coordinates": "Pixel Coordinates",
+      "artwork_preview": "Artwork Preview",
+      "choose_color": "Choose any color",
+      "choose_palette": "Choose a color palette",
+      "change_resolution": "Change canvas resolution"
+    }
+  },
+  "cy": {
+    "app": {
+      "title": "Pixel Maker - Fersiwn 1.3.0",
+      "description": "Golygydd celf pixel syml ar gyfer creu celf pixel (gyda allforio makecode)",
+      "version": "v1.3.0",
+      "untitled": "Heb Enw",
+      "made_in_wales": "Gwnaed yng Nghymru"
+    },
+    "tools": {
+      "pen": "Lluniadu",
+      "pen_tooltip": "Lluniadu (P) - Lluniadu gyda'r lliw a ddewiswyd",
+      "eraser": "Rhwbiwr", 
+      "eraser_tooltip": "Rhwbiwr (E) - Dileu pixels",
+      "fill": "Llenwi",
+      "fill_tooltip": "Offeryn Llenwi (F) - Llenwi ardaloedd cysylltiedig",
+      "color_picker": "Dewisydd Lliw",
+      "color_picker_tooltip": "Dewisydd Lliw (I) - Dewis lliw o'r canfas",
+      "undo": "Dadwneud",
+      "undo_tooltip": "Dadwneud (Ctrl+Z) - Dadwneud y weithred ddiwethaf",
+      "redo": "Ailwneud",
+      "redo_tooltip": "Ailwneud (Ctrl+Y/Ctrl+Shift+Z) - Ailwneud y weithred a ddadwneuwyd",
+      "paste": "Gludo",
+      "paste_tooltip": "Gludo - Gludo delwedd o'r clipfwrdd",
+      "clear": "Clirio",
+      "clear_tooltip": "Clir - Clirio'r canfas",
+      "save": "Arbed",
+      "save_tooltip": "Arbed - Allforio fel PNG",
+      "import": "Mewnforio",
+      "import_tooltip": "Mewnforio - Mewnforio delwedd",
+      "share": "Rhannu",
+      "share_tooltip": "Rhannu - Creu URL rhannadwy",
+      "export_makecode": "Allforio MakeCode",
+      "export_makecode_tooltip": "Allforio MakeCode - Allforio ar gyfer MakeCode Arcade",
+      "github": "Reality Boffins - Ewch i'n gwefan",
+      "github_tooltip": "Ewch i Storfa Github"
+    },
+    "palettes": {
+      "default": "Diofyn",
+      "makecode": "MakeCode",
+      "steamlords": "Steam Lords",
+      "pico8": "Pico-8",
+      "cga": "CGA",
+      "na16": "NA16",
+      "gameboy": "GameBoy",
+      "grayscale": "Llwyd",
+      "pastel": "Pastel",
+      "jehkoba32": "Jehkoba 32",
+      "endesga32": "Endesga 32",
+      "nanner32": "Nanner 32"
+    },
+    "resolutions": {
+      "8x8": "8x8",
+      "16x16": "16x16",
+      "32x32": "32x32",
+      "64x64": "64x64",
+      "128x128": "128x128"
+    },
+    "gallery": {
+      "open": "Agor Oriel",
+      "open_tooltip": "Agor Oriel - Pori celf wedi'i arbed",
+      "save": "Arbed i Oriel",
+      "save_tooltip": "Arbed i Oriel - Arbed y celf cyfredol",
+      "select_all": "Dewis Popeth",
+      "deselect_all": "Dad-ddewis Popeth",
+      "duplicate": "Dyblygu",
+      "delete": "Dileu",
+      "delete_tooltip": "Dileu celf a ddewiswyd",
+      "close": "Cau",
+      "close_tooltip": "Cau oriel",
+      "no_artwork": "Dim celf wedi'i arbed eto"
+    },
+    "modals": {
+      "clear_canvas": {
+        "title": "Clirio Canfas",
+        "message": "Ydych chi'n siŵr eich bod am glirio'r canfas? Gellir dadwneud y weithred hon.",
+        "yes": "Ie",
+        "no": "Na"
+      },
+      "change_resolution": {
+        "title": "Newid Cydraniad",
+        "message": "Bydd newid datrys yn clirio'ch celf cyfredol. Parhau?",
+        "yes": "Ie",
+        "no": "Na"
+      },
+      "makecode_export": {
+        "title": "Allforio MakeCode",
+        "message": "Copiwyd data sprite i'r clipfwrdd!",
+        "instruction": "Gallwch chi nawr ei ludo i'ch prosiect MakeCode."
+      },
+      "share_artwork": {
+        "title": "Rhannu eich celf",
+        "copy": "Copïo",
+        "close": "Cau"
+      },
+      "delete_artwork": {
+        "title": "Dileu Celf",
+        "message": "Ydych chi'n siŵr eich bod am ddileu'r celf hon?",
+        "yes": "Ie",
+        "no": "Na"
+      },
+      "delete_selected": {
+        "title": "Dileu Celf a Ddewiswyd",
+        "message": "Ydych chi'n siŵr eich bod am ddileu'r celf a ddewiswyd? Ni ellir dadwneud hyn.",
+        "yes": "Ie",
+        "no": "Na"
+      },
+      "save_options": {
+        "image_formats": "Fformatau Delwedd",
+        "save_png": "Arbed fel PNG",
+        "save_jpg": "Arbed fel JPG",
+        "save_ico": "Arbed fel ICO",
+        "embedded_formats": "Fformatau Mewnosodedig",
+        "arduino_1bit": "Arduino 1-bit",
+        "adafruit_gfx": "Adafruit GFX",
+        "raw_binary": "Deuaidd Crai"
+      }
+    },
+    "notifications": {
+      "auto_saving": "Arbed yn awtomatig...",
+      "error_saving": "Gwall wrth arbed gwaith",
+      "previous_work_loaded": "Llwythwyd gwaith blaenorol!",
+      "error_loading": "Gwall wrth lwytho gwaith blaenorol",
+      "palette_changed": "Newidiwyd palet i {palette}",
+      "resolution_changed": "Newidiwyd datrys i {resolution}x{resolution}",
+      "image_imported": "Mewnforiwyd delwedd!",
+      "undo": "Dadwneud",
+      "redo": "Ailwneud",
+      "inverted_image": "Gwrthdrodd delwedd",
+      "please_switch_palette": "Newidiwch i balet MakeCode yn gyntaf",
+      "failed_copy": "Methu copïo i'r clipfwrdd",
+      "no_image_clipboard": "Ni ddarganfuwyd delwedd yn y clipfwrdd",
+      "unable_paste": "Methu ludo delwedd. Rhowch gynnig ar fewnforio yn lle hynny.",
+      "shared_artwork_loaded": "Llwythwyd celf rhannadwy!",
+      "failed_load_shared": "Methu llwytho celf rhannadwy",
+      "artwork_loaded_gallery": "Llwythwyd celf o'r oriel",
+      "artwork_saved_gallery": "Arbedwyd \"{filename}\" i'r oriel",
+      "artwork_updated_gallery": "Diweddarwyd \"{filename}\" yn yr oriel",
+      "artwork_deleted_gallery": "Dilewyd celf o'r oriel",
+      "no_items_selected": "Dim eitemau wedi'u dewis",
+      "items_deleted": "Dilewyd {count} eitem(au) o'r oriel",
+      "items_duplicated": "Dyblygwyd {count} eitem(au)",
+      "please_drop_image": "Gollwng ffeil delwedd yma",
+      "switched_to_english": "Newidiwyd i Saesneg",
+      "switched_to_welsh": "Newidiwyd i Gymraeg"
+    },
+    "ui": {
+      "coordinates": "Cyfesurynnau Pixel",
+      "artwork_preview": "Rhagolwg Celf",
+      "choose_color": "Dewiswch unrhyw liw",
+      "choose_palette": "Dewiswch balet lliw",
+      "change_resolution": "Newid datrys canfas"
+    }
+  }
+}

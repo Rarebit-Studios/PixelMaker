@@ -1,4 +1,4 @@
-const CACHE_VERSION = '1.1.0'; // Match this with APP_VERSION
+const CACHE_VERSION = '1.3.0'; // Match this with APP_VERSION
 const CACHE_NAME = `pixel-maker-${CACHE_VERSION}`;
 const ASSETS_TO_CACHE = [
   './',

@@ -605,6 +605,50 @@ button,
     font-family: 'Roboto', sans-serif;
 }
 
+.made-in-wales-display {
+    position: fixed;
+    top: 5px;
+    right: 60px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.7rem;
+    z-index: 100;
+    pointer-events: none;
+    font-family: 'Roboto', sans-serif;
+}
+
+.language-toggle {
+    position: fixed;
+    bottom: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 100;
+    padding: 0;
+    margin: 0;
+    width: auto;
+    height: auto;
+    transition: transform 0.2s ease;
+}
+
+.language-toggle:hover {
+    transform: scale(1.1);
+}
+
+.language-toggle:active {
+    transform: scale(0.95);
+}
+
+#languageFlag {
+    font-size: 1.5rem;
+    line-height: 1;
+    display: block;
+}
+
+#languageCode {
+    display: none;
+}
+
 /* Add specific styling for palette pairs */
 .left-palette2,
 .right-palette2 {

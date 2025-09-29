@@ -1,4 +1,313 @@
-const APP_VERSION = '1.2.2'; // Match this with meta tag and title
+const APP_VERSION = '1.3.0'; // Match this with meta tag and title
+
+// Language system
+let currentLanguage = 'en';
+let languageData = {};
+
+// Load language data
+async function loadLanguage(lang = 'en') {
+    try {
+        const response = await fetch(`language.json`);
+        const allLanguages = await response.json();
+        languageData = allLanguages[lang] || allLanguages['en'];
+        currentLanguage = lang;
+        localStorage.setItem('pixelArtLanguage', lang);
+        return languageData;
+    } catch (error) {
+        console.error('Error loading language:', error);
+        // Fallback to English
+        languageData = {
+            app: { title: "Pixel Maker - Version 1.2.2", description: "A simple pixel art editor" },
+            tools: { pen: "Pen", eraser: "Eraser" },
+            notifications: { auto_saving: "Auto-saving..." }
+        };
+        return languageData;
+    }
+}
+
+// Get localized string
+function t(key, params = {}) {
+    const keys = key.split('.');
+    let value = languageData;
+    
+    for (const k of keys) {
+        if (value && typeof value === 'object' && k in value) {
+            value = value[k];
+        } else {
+            console.warn(`Translation key not found: ${key}`);
+            return key; // Return the key if translation not found
+        }
+    }
+    
+    if (typeof value !== 'string') {
+        console.warn(`Translation value is not a string: ${key}`);
+        return key;
+    }
+    
+    // Replace parameters in the string
+    return value.replace(/\{(\w+)\}/g, (match, param) => {
+        return params[param] !== undefined ? params[param] : match;
+    });
+}
+
+// Update all text content on the page
+function updatePageLanguage() {
+    // Update page title
+    document.title = t('app.title');
+    
+    // Update meta description
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+        metaDesc.content = t('app.description');
+    }
+    
+    // Update version display
+    const versionDisplay = document.querySelector('.version-display');
+    if (versionDisplay) {
+        versionDisplay.textContent = t('app.version');
+    }
+    
+    // Update filename display
+    const filenameDisplay = document.querySelector('.filename-display');
+    if (filenameDisplay && filenameDisplay.textContent === 'Untitled') {
+        filenameDisplay.textContent = t('app.untitled');
+    }
+    
+    // Update "Made in Wales" display
+    const madeInWalesDisplay = document.querySelector('.made-in-wales-display');
+    if (madeInWalesDisplay) {
+        madeInWalesDisplay.textContent = t('app.made_in_wales');
+    }
+    
+    // Update language toggle button
+    updateLanguageToggle();
+    
+    // Update tooltips
+    updateTooltips();
+    
+    // Update modal content
+    updateModalContent();
+    
+    // Update palette options
+    updatePaletteOptions();
+    
+    // Update resolution options
+    updateResolutionOptions();
+}
+
+// Update language toggle button appearance
+function updateLanguageToggle() {
+    const languageToggle = document.getElementById('languageToggle');
+    const languageFlag = document.getElementById('languageFlag');
+    
+    if (languageToggle && languageFlag) {
+        if (currentLanguage === 'cy') {
+            // Currently Welsh, show Welsh flag
+            languageFlag.textContent = '🏴󠁧󠁢󠁷󠁬󠁳󠁿';
+            languageToggle.title = 'Switch to English';
+        } else {
+            // Currently English, show UK flag
+            languageFlag.textContent = '🇬🇧';
+            languageToggle.title = 'Switch to Welsh';
+        }
+    }
+}
+
+// Toggle language function
+async function toggleLanguage() {
+    const newLanguage = currentLanguage === 'en' ? 'cy' : 'en';
+    await loadLanguage(newLanguage);
+    updatePageLanguage();
+    
+    // Show notification
+    const notificationKey = newLanguage === 'en' ? 'notifications.switched_to_english' : 'notifications.switched_to_welsh';
+    showNotification(t(notificationKey), 2000);
+}
+
+// Update tooltips
+function updateTooltips() {
+    const setTitle = (button, text) => {
+        if (!button) return;
+        button.title = text;
+        const img = button.querySelector('img');
+        if (img) img.title = text;
+    };
+
+    // Main tools tooltips
+    setTitle(document.getElementById('pen'), t('tools.pen_tooltip'));
+    setTitle(document.getElementById('eraser'), t('tools.eraser_tooltip'));
+    setTitle(document.getElementById('colorpicker'), t('tools.color_picker_tooltip'));
+    setTitle(document.getElementById('floodfill'), t('tools.fill_tooltip'));
+    setTitle(document.getElementById('undo'), t('tools.undo_tooltip'));
+    setTitle(document.getElementById('redo'), t('tools.redo_tooltip'));
+    
+    // Other tooltips
+    setTitle(document.getElementById('save'), t('tools.save_tooltip'));
+    setTitle(document.getElementById('import'), t('tools.import_tooltip'));
+    setTitle(document.getElementById('clear'), t('tools.clear_tooltip'));
+    setTitle(document.getElementById('exportMakeCode'), t('tools.export_makecode_tooltip'));
+    setTitle(document.getElementById('openGallery'), t('gallery.open_tooltip'));
+    setTitle(document.getElementById('saveToGallery'), t('gallery.save_tooltip'));
+    setTitle(document.getElementById('paste'), t('tools.paste_tooltip'));
+    setTitle(document.getElementById('share'), t('tools.share_tooltip'));
+    setTitle(document.getElementById('logoBtn'), t('tools.github_tooltip'));
+    
+    // UI tooltips
+    document.getElementById('colorPicker').title = t('ui.choose_color');
+    document.getElementById('paletteSelector').title = t('ui.choose_palette');
+    document.getElementById('resolutionSelector').title = t('ui.change_resolution');
+    document.getElementById('coordinates').title = t('ui.coordinates');
+    document.getElementById('miniPreview').title = t('ui.artwork_preview');
+    
+    // Gallery tooltips
+    setTitle(document.getElementById('deleteAllBtn'), t('gallery.delete_tooltip'));
+    setTitle(document.getElementById('closeGalleryModal'), t('gallery.close_tooltip'));
+}
+
+// Update modal content
+function updateModalContent() {
+    // Clear Canvas Modal
+    const clearModal = document.getElementById('clearModal');
+    if (clearModal) {
+        const title = clearModal.querySelector('h3');
+        const message = clearModal.querySelector('p');
+        const yesBtn = document.getElementById('clearYes');
+        const noBtn = document.getElementById('clearNo');
+        
+        if (title) title.textContent = t('modals.clear_canvas.title');
+        if (message) message.textContent = t('modals.clear_canvas.message');
+        if (yesBtn) yesBtn.textContent = t('modals.clear_canvas.yes');
+        if (noBtn) noBtn.textContent = t('modals.clear_canvas.no');
+    }
+    
+    // Resolution Change Modal
+    const resolutionModal = document.getElementById('resolutionModal');
+    if (resolutionModal) {
+        const title = resolutionModal.querySelector('h3');
+        const message = resolutionModal.querySelector('p');
+        const yesBtn = document.getElementById('resolutionYes');
+        const noBtn = document.getElementById('resolutionNo');
+        
+        if (title) title.textContent = t('modals.change_resolution.title');
+        if (message) message.textContent = t('modals.change_resolution.message');
+        if (yesBtn) yesBtn.textContent = t('modals.change_resolution.yes');
+        if (noBtn) noBtn.textContent = t('modals.change_resolution.no');
+    }
+    
+    // MakeCode Export Modal
+    const copyModal = document.getElementById('copyModal');
+    if (copyModal) {
+        const title = copyModal.querySelector('h3');
+        const message = copyModal.querySelector('p');
+        const instruction = copyModal.querySelectorAll('p')[1];
+        
+        if (title) title.textContent = t('modals.makecode_export.title');
+        if (message) message.textContent = t('modals.makecode_export.message');
+        if (instruction) instruction.textContent = t('modals.makecode_export.instruction');
+    }
+    
+    // Share Modal
+    const shareModal = document.getElementById('shareModal');
+    if (shareModal) {
+        const title = shareModal.querySelector('h3');
+        const copyBtn = document.getElementById('copyShareUrl');
+        const closeBtn = document.getElementById('closeShareModal');
+        
+        if (title) title.textContent = t('modals.share_artwork.title');
+        if (copyBtn) copyBtn.textContent = t('modals.share_artwork.copy');
+        if (closeBtn) closeBtn.textContent = t('modals.share_artwork.close');
+    }
+    
+    // Gallery Modal
+    const galleryModal = document.getElementById('galleryModal');
+    if (galleryModal) {
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const duplicateBtn = document.getElementById('duplicateSelectedBtn');
+        const deleteBtn = document.getElementById('deleteAllBtn');
+        
+        if (selectAllBtn) selectAllBtn.textContent = t('gallery.select_all');
+        if (duplicateBtn) duplicateBtn.textContent = t('gallery.duplicate');
+        if (deleteBtn) deleteBtn.textContent = t('gallery.delete');
+    }
+    
+    // Delete Confirmation Modal
+    const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+    if (deleteConfirmModal) {
+        const title = deleteConfirmModal.querySelector('h3');
+        const message = deleteConfirmModal.querySelector('p');
+        const yesBtn = document.getElementById('deleteConfirmYes');
+        const noBtn = document.getElementById('deleteConfirmNo');
+        
+        if (title) title.textContent = t('modals.delete_artwork.title');
+        if (message) message.textContent = t('modals.delete_artwork.message');
+        if (yesBtn) yesBtn.textContent = t('modals.delete_artwork.yes');
+        if (noBtn) noBtn.textContent = t('modals.delete_artwork.no');
+    }
+    
+    // Delete All Confirmation Modal
+    const deleteAllConfirmModal = document.getElementById('deleteAllConfirmModal');
+    if (deleteAllConfirmModal) {
+        const title = deleteAllConfirmModal.querySelector('h3');
+        const message = deleteAllConfirmModal.querySelector('p');
+        const yesBtn = document.getElementById('deleteAllConfirmYes');
+        const noBtn = document.getElementById('deleteAllConfirmNo');
+        
+        if (title) title.textContent = t('modals.delete_selected.title');
+        if (message) message.textContent = t('modals.delete_selected.message');
+        if (yesBtn) yesBtn.textContent = t('modals.delete_selected.yes');
+        if (noBtn) noBtn.textContent = t('modals.delete_selected.no');
+    }
+    
+    // Save Options Modal
+    const saveModal = document.getElementById('saveModal');
+    if (saveModal) {
+        const imageFormatsTitle = saveModal.querySelector('h3');
+        const embeddedFormatsTitle = saveModal.querySelectorAll('h3')[1];
+        const savePNGBtn = document.getElementById('savePNG');
+        const saveJPGBtn = document.getElementById('saveJPG');
+        const saveICOBtn = document.getElementById('saveICO');
+        const saveArduinoBtn = document.getElementById('saveArduino');
+        const saveAdafruitBtn = document.getElementById('saveAdafruit');
+        const saveBinaryBtn = document.getElementById('saveBinary');
+        
+        if (imageFormatsTitle) imageFormatsTitle.textContent = t('modals.save_options.image_formats');
+        if (embeddedFormatsTitle) embeddedFormatsTitle.textContent = t('modals.save_options.embedded_formats');
+        if (savePNGBtn) savePNGBtn.textContent = t('modals.save_options.save_png');
+        if (saveJPGBtn) saveJPGBtn.textContent = t('modals.save_options.save_jpg');
+        if (saveICOBtn) saveICOBtn.textContent = t('modals.save_options.save_ico');
+        if (saveArduinoBtn) saveArduinoBtn.textContent = t('modals.save_options.arduino_1bit');
+        if (saveAdafruitBtn) saveAdafruitBtn.textContent = t('modals.save_options.adafruit_gfx');
+        if (saveBinaryBtn) saveBinaryBtn.textContent = t('modals.save_options.raw_binary');
+    }
+}
+
+// Update palette options
+function updatePaletteOptions() {
+    const paletteSelector = document.getElementById('paletteSelector');
+    if (paletteSelector) {
+        const options = paletteSelector.querySelectorAll('option');
+        options.forEach(option => {
+            const value = option.value;
+            if (value && t(`palettes.${value}`) !== `palettes.${value}`) {
+                option.textContent = t(`palettes.${value}`);
+            }
+        });
+    }
+}
+
+// Update resolution options
+function updateResolutionOptions() {
+    const resolutionSelector = document.getElementById('resolutionSelector');
+    if (resolutionSelector) {
+        const options = resolutionSelector.querySelectorAll('option');
+        options.forEach(option => {
+            const value = option.value;
+            if (value && t(`resolutions.${value}x${value}`) !== `resolutions.${value}x${value}`) {
+                option.textContent = t(`resolutions.${value}x${value}`);
+            }
+        });
+    }
+}
 
 const nameGenerator = {
     adjectives: [
@@ -23,7 +332,18 @@ const nameGenerator = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Load language system first
+    const savedLanguage = localStorage.getItem('pixelArtLanguage') || 'en';
+    await loadLanguage(savedLanguage);
+    updatePageLanguage();
+    
+    // Add language toggle event listener
+    const languageToggle = document.getElementById('languageToggle');
+    if (languageToggle) {
+        languageToggle.addEventListener('click', toggleLanguage);
+    }
+    
     document.addEventListener('dragover', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -52,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             reader.readAsDataURL(files[0]);
         } else {
-            showNotification('Please drop an image file', 3000);
+            showNotification(t('notifications.please_drop_image'), 3000);
         }
     });
     
@@ -142,10 +462,10 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('pixelArtPalette', currentPaletteName);
             localStorage.setItem('pixelArtFilename', currentFilename);
             
-            showNotification('Auto-saving...', 1000);
+            showNotification(t('notifications.auto_saving'), 1000);
         } catch (error) {
             console.error('Error saving data:', error);
-            showNotification('Error saving work', 3000);
+            showNotification(t('notifications.error_saving'), 3000);
         }
     }
 
@@ -279,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLocalStorage();
         
         // Show notification
-        showNotification(`Palette changed to ${newPaletteName}`);
+        showNotification(t('notifications.palette_changed', { palette: newPaletteName }));
     });
 
     // Make sure the button visibility is set correctly on initial load
@@ -618,7 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMiniPreview();
         pushState(); // Add to undo history
         saveToLocalStorage(); // Save the changes
-        showNotification('Image imported!');
+        showNotification(t('notifications.image_imported'));
     }
 
     // Update the image input handler
@@ -843,7 +1163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update the exportMakeCodeBtn click handler
     exportMakeCodeBtn.addEventListener('click', () => {
         if (paletteSelector.value !== 'makecode') {
-            showNotification('Please switch to MakeCode palette first', 3000);
+            showNotification(t('notifications.please_switch_palette'), 3000);
             return;
         }
         
@@ -862,7 +1182,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('copyModal').style.display = 'none';
             }, 2000);
         }).catch(err => {
-            showNotification('Failed to copy to clipboard', 3000);
+            showNotification(t('notifications.failed_copy'), 3000);
         });
     });
 
@@ -931,10 +1251,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     undoStack = [pixelData];
                     redoStack = [];
                     
-                    showNotification('Previous work loaded!', 3000);
+                    showNotification(t('notifications.previous_work_loaded'), 3000);
                 } catch (error) {
                     console.error('Error parsing saved data:', error);
-                    showNotification('Error loading previous work', 3000);
+                    showNotification(t('notifications.error_loading'), 3000);
                 }
             } else {
                 // No saved data, generate new filename
@@ -960,7 +1280,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error('Error loading saved data:', error);
-            showNotification('Error loading previous work', 3000);
+            showNotification(t('notifications.error_loading'), 3000);
             // Create default grid if loading fails
             createGridWithoutSave(16);
             // Generate new filename on error
@@ -1072,7 +1392,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const previousState = undoStack.pop();
         applyState(previousState);
         isUndoRedoOperation = false;
-        showNotification('Undo');
+        showNotification(t('notifications.undo'));
     }
 
     // Add redo function
@@ -1086,7 +1406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextState = redoStack.pop();
         applyState(nextState);
         isUndoRedoOperation = false;
-        showNotification('Redo');
+        showNotification(t('notifications.redo'));
     }
 
     // Secret function: invert image colors (Shift+I)
@@ -1121,7 +1441,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMiniPreview();
         pushState();
         saveToLocalStorage();
-        showNotification('Inverted image');
+        showNotification(t('notifications.inverted_image'));
     }
 
     // Update the keyboard shortcut handler
@@ -1348,7 +1668,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Save the new resolution immediately
                 localStorage.setItem('pixelArtResolution', newSize.toString());
                 saveToLocalStorage(); // Save all state
-                showNotification(`Resolution changed to ${newSize}x${newSize}`);
+                showNotification(t('notifications.resolution_changed', { resolution: newSize }));
             }
         }
     });
@@ -1405,7 +1725,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Save the new resolution immediately
         localStorage.setItem('pixelArtResolution', newSize.toString());
         saveToLocalStorage(); // Save all state
-        showNotification(`Resolution changed to ${newSize}x${newSize}`);
+        showNotification(t('notifications.resolution_changed', { resolution: newSize }));
         
         // Hide modal
         document.getElementById('modalOverlay').style.display = 'none';
@@ -1715,7 +2035,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 loadPixelData(pixels);
-                showNotification('Shared artwork loaded!', 2000);
+                showNotification(t('notifications.shared_artwork_loaded'), 2000);
                 
                 // Save the loaded state
                 saveToLocalStorage();

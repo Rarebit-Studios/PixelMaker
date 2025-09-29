@@ -1,6 +1,6 @@
 # Pixel Art Editor 
 
-A simple web-based pixel art tool. Create, edit, and export pixel art with support for multiple color palettes and exports to Makecode Arcade.
+A simple web-based pixel art tool. Create, edit, and export pixel art with support for multiple color palettes and exports to Makecode Arcade. Now with full bilingual support (English/Welsh) and a clean, intuitive interface.
 
 I threw this together for some kids workshops where we needed a simple image import/export to makecode arcade.
 Its expanded a bit to cover favicon making and images for embedded platforms such are arduino. I'm pretty rough as javascript and web stuff, there will be gremlins. 
@@ -79,6 +79,14 @@ You can use it here:
   - Top-left corner
   - Gallery thumbnails
 - **Name Persistence**: Maintains filename when sharing artwork
+
+### Bilingual Support
+- **English/Welsh Language Toggle**: Switch between languages with a single click
+- **Flag Icons**: Visual language indicators (🇬🇧 for English, 🏴󠁧󠁢󠁷󠁬󠁳󠁿 for Welsh)
+- **Complete Translation**: All UI elements, tooltips, notifications, and modals translated
+- **Language Persistence**: Your language choice is remembered across sessions
+- **Cultural Touch**: "Made in Wales" / "Gwnaed yng Nghymru" text display
+- **Seamless Experience**: No page reload required when switching languages
 
 ### Responsive Design
 - Works on desktop and mobile devices
@@ -208,7 +216,16 @@ const mySprite = sprites.create(img`
 
 ## Version History
 
-- 1.2.2 - Current Version
+- 1.3.0 - Current Version
+  - Added bilingual support (English/Welsh)
+  - Added language toggle button with flag icons
+  - Added "Made in Wales" / "Gwnaed yng Nghymru" text
+  - Implemented complete translation system for all UI elements
+  - Added language persistence across sessions
+  - Updated license to The Unlicense
+  - Enhanced user experience with localized tooltips and notifications
+
+- 1.2.2 - Previous Version
   - Fixed Ico export
   - Fixed Gallery Size
   - Fixed Tooltips
