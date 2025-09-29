@@ -1,4 +1,4 @@
-const APP_VERSION = '1.1.0'; // Match this with meta tag and title
+const APP_VERSION = '1.2.2'; // Match this with meta tag and title
 
 const nameGenerator = {
     adjectives: [
@@ -1008,6 +1008,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update preview
         updateMiniPreview();
+
+        // Hide grid borders for high resolutions
+        applyGridVisibility(size);
     }
 
     // Set up auto-save interval (60 seconds)
@@ -1086,6 +1089,41 @@ document.addEventListener('DOMContentLoaded', () => {
         showNotification('Redo');
     }
 
+    // Secret function: invert image colors (Shift+I)
+    function invertImage() {
+        const pixels = document.querySelectorAll('.pixel');
+        const transparentToken = currentPalette === palettes.makecode ? '#00000000' : 'transparent';
+
+        pixels.forEach(pixel => {
+            let color = pixel.style.backgroundColor || transparentToken;
+            if (!color || color === 'transparent' || color === '#00000000') {
+                // leave transparent as is
+                return;
+            }
+
+            // Normalize to hex
+            if (color.startsWith('rgb')) {
+                color = rgbToHex(color);
+            }
+            const rgb = hexToRgb(color);
+            if (!rgb) return;
+
+            // Invert and clamp
+            const invR = 255 - rgb.r;
+            const invG = 255 - rgb.g;
+            const invB = 255 - rgb.b;
+
+            // Snap to closest palette color
+            const inverted = findClosestColor(invR, invG, invB);
+            pixel.style.backgroundColor = inverted;
+        });
+
+        updateMiniPreview();
+        pushState();
+        saveToLocalStorage();
+        showNotification('Inverted image');
+    }
+
     // Update the keyboard shortcut handler
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey || e.metaKey) { // metaKey for Mac support
@@ -1100,6 +1138,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 redo();
             }
+        } else if (e.shiftKey && e.key.toLowerCase() === 'i') {
+            e.preventDefault();
+            invertImage();
         } else if (e.key.toLowerCase() === 'p') {
             // Pen shortcut
             penBtn.click();
@@ -1191,7 +1232,6 @@ document.addEventListener('DOMContentLoaded', () => {
         coordinatesDisplay.title = "Pixel Coordinates";
         
         // Gallery modal buttons
-        document.getElementById('spritesheetBtn').title = "Create spritesheet from selected artwork";
         document.getElementById('deleteAllBtn').title = "Delete selected artwork";
         document.getElementById('closeGalleryModal').title = "Close gallery";
     }
@@ -1427,6 +1467,18 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update preview
         updateMiniPreview();
+
+        // Hide grid borders for high resolutions
+        applyGridVisibility(size);
+    }
+
+    // Hide per-pixel borders for large resolutions (64 or 128)
+    function applyGridVisibility(size) {
+        const pixels = document.querySelectorAll('.pixel');
+        const showGrid = size < 64;
+        pixels.forEach(pixel => {
+            pixel.style.border = showGrid ? '1px solid #4d50589c' : 'none';
+        });
     }
 
     // Create initial grid
@@ -2023,66 +2075,7 @@ document.addEventListener('DOMContentLoaded', () => {
         galleryModal.style.display = 'none';
     }
 
-    // Add this function to create and download spritesheet
-    function createSpritesheet() {
-        const selectedItems = document.querySelectorAll('#galleryGrid input[type="checkbox"]:checked');
-        
-        if (selectedItems.length === 0) {
-            showNotification('No items selected');
-            return;
-        }
-        
-        // Get gallery items
-        const galleryItems = JSON.parse(localStorage.getItem('pixelGallery') || '[]');
-        const selectedIds = Array.from(selectedItems).map(checkbox => parseInt(checkbox.dataset.itemId));
-        const selectedArtwork = galleryItems.filter(item => selectedIds.includes(item.id));
-        
-        // Calculate grid dimensions
-        const numItems = selectedArtwork.length;
-        const gridSize = Math.ceil(Math.sqrt(numItems)); // Make a square grid
-        
-        // Create canvas for spritesheet
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Set canvas size (each sprite is 160x160 - scaled up from 16x16)
-        const spriteSize = 160; // 16 * 10 (scale)
-        canvas.width = gridSize * spriteSize;
-        canvas.height = gridSize * spriteSize;
-        
-        // Make canvas transparent
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Load all images and draw them to the spritesheet
-        let loadedImages = 0;
-        selectedArtwork.forEach((item, index) => {
-            const img = new Image();
-            img.onload = () => {
-                // Calculate position in grid
-                const x = (index % gridSize) * spriteSize;
-                const y = Math.floor(index / gridSize) * spriteSize;
-                
-                // Draw image
-                ctx.drawImage(img, x, y, spriteSize, spriteSize);
-                
-                loadedImages++;
-                
-                // When all images are loaded, download the spritesheet
-                if (loadedImages === numItems) {
-                    const link = document.createElement('a');
-                    const currentFilename = document.querySelector('.filename-display').textContent;
-                    link.download = `${currentFilename}-spritesheet.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    showNotification(`Spritesheet saved as "${currentFilename}"`);
-                }
-            };
-            img.src = item.imageData;
-        });
-    }
-
-    // Add event listener for the spritesheet button
-    document.getElementById('spritesheetBtn').addEventListener('click', createSpritesheet);
+    // Spritesheet functionality removed
 
     // Only update filename in these specific cases
     function resetPageTitle() {
