@@ -1563,7 +1563,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const logoBtn = document.getElementById('logoBtn');
     if (logoBtn) {
         logoBtn.addEventListener('click', () => {
-            window.open('https://github.com/Reality-Boffins/PixelMaker/', '_blank', 'noopener,noreferrer');
+            window.open('https://github.com/sixbitglitch/PixelMaker', '_blank', 'noopener,noreferrer');
         });
     }
 
