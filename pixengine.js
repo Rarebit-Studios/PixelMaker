@@ -425,7 +425,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         Object.entries(buttons).forEach(([tool, button]) => {
             if (button) {
-                button.style.backgroundColor = tool === activeTool ? '#ff4444' : '#18b2e0';
+                // Clear any previous inline styles so CSS hover states work
+                button.style.backgroundColor = '';
+                button.classList.toggle('active', tool === activeTool);
             }
         });
         
@@ -1149,12 +1151,19 @@ document.addEventListener('DOMContentLoaded', () => {
         miniPreview.title = "Artwork Preview";
         
         // Main Tools tooltips
-        penBtn.title = "Pen (P) - Draw with selected color";
-        eraserBtn.title = "Eraser (E) - Erase pixels";
-        colorPickerBtn.title = "Color Picker (I) - Pick a color from the canvas";
-        floodFillBtn.title = "Fill Tool (F) - Fill connected areas";
-        undoBtn.title = "Undo (Ctrl+Z) - Undo last action";
-        redoBtn.title = "Redo (Ctrl+Y/Ctrl+Shift+Z) - Redo last undone action";
+        const setTitle = (button, text) => {
+            if (!button) return;
+            button.title = text;
+            const img = button.querySelector('img');
+            if (img) img.title = text;
+        };
+
+        setTitle(penBtn, "Pen (P) - Draw with selected color");
+        setTitle(eraserBtn, "Eraser (E) - Erase pixels");
+        setTitle(colorPickerBtn, "Color Picker (I) - Pick a color from the canvas");
+        setTitle(floodFillBtn, "Fill Tool (F) - Fill connected areas");
+        setTitle(undoBtn, "Undo (Ctrl+Z) - Undo last action");
+        setTitle(redoBtn, "Redo (Ctrl+Y/Ctrl+Shift+Z) - Redo last undone action");
         
         // Color tools tooltips
         colorPicker.title = "Choose any color";
@@ -1167,13 +1176,13 @@ document.addEventListener('DOMContentLoaded', () => {
         exportMakeCodeBtn.title = "Export MakeCode - Export for MakeCode Arcade";
         
         // Gallery tooltips
-        document.getElementById('openGallery').title = "Open Gallery - Browse saved artwork";
-        document.getElementById('saveToGallery').title = "Save to Gallery - Save current artwork";
+        setTitle(document.getElementById('openGallery'), "Open Gallery - Browse saved artwork");
+        setTitle(document.getElementById('saveToGallery'), "Save to Gallery - Save current artwork");
         
         // Other tools tooltips
-        document.getElementById('paste').title = "Paste - Paste image from clipboard";
-        document.getElementById('share').title = "Share - Create shareable URL";
-        document.getElementById('logoBtn').title = "Visit Github Repository";
+        setTitle(document.getElementById('paste'), "Paste - Paste image from clipboard");
+        setTitle(document.getElementById('share'), "Share - Create shareable URL");
+        setTitle(document.getElementById('logoBtn'), "Visit Github Repository");
         
         // Resolution selector tooltip
         document.getElementById('resolutionSelector').title = "Change canvas resolution";
@@ -2341,22 +2350,33 @@ function canvasToICO(canvas) {
         0, 0, 0, 0       // Important color count (0 = all)
     ]);
 
-    // Create pixel data array (BGRA format)
+    // Create pixel data array (BGRA format) written bottom-up as required by DIB in ICO
     const pixelData = new Uint8Array(size * size * 4);
-    for (let i = 0; i < pixels.length; i += 4) {
-        const pos = i;
-        pixelData[pos] = pixels[i + 2];     // Blue
-        pixelData[pos + 1] = pixels[i + 1];  // Green
-        pixelData[pos + 2] = pixels[i];      // Red
-        pixelData[pos + 3] = pixels[i + 3];  // Alpha
+    for (let y = 0; y < size; y++) {
+        const srcRowStart = y * size * 4;
+        // Destination row is counted from bottom
+        const destRowStart = (size - 1 - y) * size * 4;
+        for (let x = 0; x < size; x++) {
+            const srcIndex = srcRowStart + x * 4;
+            const destIndex = destRowStart + x * 4;
+            // Convert RGBA (canvas) -> BGRA (DIB)
+            pixelData[destIndex] = pixels[srcIndex + 2];      // B
+            pixelData[destIndex + 1] = pixels[srcIndex + 1];  // G
+            pixelData[destIndex + 2] = pixels[srcIndex];      // R
+            pixelData[destIndex + 3] = pixels[srcIndex + 3];  // A
+        }
     }
 
+    // Create 1-bit AND mask (all zeros = fully visible). Rows are padded to 32-bit boundaries.
+    const maskStrideBytes = Math.ceil(size / 32) * 4; // bytes per mask row
+    const andMask = new Uint8Array(maskStrideBytes * size); // initialized to 0
+
     // Combine all parts
-    const totalSize = header.length + directory.length + infoHeader.length + pixelData.length;
+    const totalSize = header.length + directory.length + infoHeader.length + pixelData.length + andMask.length;
     const ico = new Uint8Array(totalSize);
     
     // Update image size in directory
-    const imageSize = infoHeader.length + pixelData.length;
+    const imageSize = infoHeader.length + pixelData.length + andMask.length;
     directory[8] = imageSize & 0xFF;
     directory[9] = (imageSize >> 8) & 0xFF;
     directory[10] = (imageSize >> 16) & 0xFF;
@@ -2366,7 +2386,10 @@ function canvasToICO(canvas) {
     ico.set(header, 0);
     ico.set(directory, header.length);
     ico.set(infoHeader, header.length + directory.length);
-    ico.set(pixelData, header.length + directory.length + infoHeader.length);
+    let offset = header.length + directory.length + infoHeader.length;
+    ico.set(pixelData, offset);
+    offset += pixelData.length;
+    ico.set(andMask, offset);
 
     return ico;
 }

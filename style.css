@@ -245,6 +245,11 @@ button, .tool-button {
     padding: 4px;
 }
 
+/* Active tool state uses class instead of inline styles to preserve :hover */
+.tool-button.active {
+    background-color: #ff4444;
+}
+
 button:hover {
     background-color: #3e8fdb;
 }
